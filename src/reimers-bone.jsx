@@ -1043,7 +1043,7 @@ export default function App(){
   // ─── render ───────────────────────────────────────────────────
   return (
     <div style={{
-      minHeight:"100vh",
+      height:"100%",
       background:GL.bg,
       color:GL.textPri,
       fontFamily:"-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif",
@@ -1153,8 +1153,8 @@ export default function App(){
 
         {/* ── Upload screen ── */}
         {step===0 && (
-          <div style={{flex:1,display:"flex",flexDirection:"column",
-            alignItems:"center",justifyContent:"center",gap:20,paddingTop:24,paddingBottom:24}}>
+          <div style={{margin:"auto 0",display:"flex",flexDirection:"column",
+            alignItems:"center",gap:20,paddingTop:24,paddingBottom:24}}>
 
             {/* Logo */}
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
