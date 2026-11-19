@@ -23,6 +23,9 @@ const TRANSLATIONS = {
     exportIOS:"📥 iOS: pressione e segure a imagem para salvar",exportClose:"Toque fora para fechar",
     errInvFemur:"⚠ Medial/Lateral invertidos",
     errInvPerkins:"⚠ Perkins abaixo da trirradiada",
+    cropTitle:"RECORTAR E ALINHAR",cropHint:"Arraste os cantos para cortar · use a régua para alinhar a bacia",
+    cropAngle:"Ângulo",cropReset:"Restaurar",cropSkip:"Pular",cropApply:"Aplicar",cropCancel:"Cancelar",
+    cropRotL:"Girar 90° à esquerda",cropRotR:"Girar 90° à direita",
   },
   en: {
     appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
@@ -44,6 +47,9 @@ const TRANSLATIONS = {
     exportIOS:"📥 iOS: press and hold the image to save",exportClose:"Tap outside to close",
     errInvFemur:"⚠ Medial/Lateral inverted",
     errInvPerkins:"⚠ Perkins below triradiate",
+    cropTitle:"CROP & STRAIGHTEN",cropHint:"Drag the corners to crop · use the dial to level the pelvis",
+    cropAngle:"Angle",cropReset:"Reset",cropSkip:"Skip",cropApply:"Apply",cropCancel:"Cancel",
+    cropRotL:"Rotate 90° left",cropRotR:"Rotate 90° right",
   },
   es: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
@@ -65,6 +71,9 @@ const TRANSLATIONS = {
     exportIOS:"📥 iOS: mantenga presionada la imagen para guardar",exportClose:"Toque fuera para cerrar",
     errInvFemur:"⚠ Medial/Lateral invertidos",
     errInvPerkins:"⚠ Perkins bajo la trirradiada",
+    cropTitle:"RECORTAR Y ALINEAR",cropHint:"Arrastre las esquinas para recortar · use la regla para alinear la pelvis",
+    cropAngle:"Ángulo",cropReset:"Restaurar",cropSkip:"Omitir",cropApply:"Aplicar",cropCancel:"Cancelar",
+    cropRotL:"Girar 90° a la izquierda",cropRotR:"Girar 90° a la derecha",
   },
 };
 
@@ -277,6 +286,7 @@ export default function App(){
   const [zoom,     setZoom]     =useState(1.0);
   const [mode,     setMode]     =useState("annotate");
   const [exportImg,setExportImg]=useState(null);
+  const [cropImg,setCropImg]=useState(null);   // image waiting on the crop step
 
   useEffect(()=>{ S.current.step=step; },[step]);
   useEffect(()=>{ S.current.pts=pts; },[pts]);
@@ -290,19 +300,23 @@ export default function App(){
   const curGrpId=STEP_IDS[step];
   const curGrp=GROUPS.find(g=>g.id===curGrpId)||null;
 
+  // Starts annotation on the (cropped/rotated) image
+  function startAnnotation(el){
+    setCropImg(null);
+    S.current.imgEl=el;
+    S.current.imgNatW=el.naturalWidth;
+    S.current.imgNatH=el.naturalHeight;
+    S.current.zoom=1;S.current.panX=0;S.current.panY=0;
+    setImgEl(el);setZoom(1);
+    S.current.step=1;setStep(1);
+  }
+
   function loadFile(file){
     if(!file) return;
     const rd=new FileReader();
     rd.onload=ev=>{
       const el=new Image();
-      el.onload=()=>{
-        S.current.imgEl=el;
-        S.current.imgNatW=el.naturalWidth;
-        S.current.imgNatH=el.naturalHeight;
-        S.current.zoom=1;S.current.panX=0;S.current.panY=0;
-        setImgEl(el);setZoom(1);
-        S.current.step=1;setStep(1);
-      };
+      el.onload=()=>setCropImg(el);   // crop/rotate first, then annotate
       el.onerror=()=>alert("Erro ao carregar imagem.");
       el.src=ev.target.result;
     };
@@ -463,7 +477,10 @@ export default function App(){
   }
   function drawMag(ctx,{ix,iy},img,W,H,bs){
     const r=MAG_R,z=MAG_Z;
-    const mx=W-r-12,my=r+12;
+    const {zoom:zz=1,panX:ppx=0,panY:ppy=0}=S.current;
+    const px=ix*bs*zz+ppx, py=iy*bs*zz+ppy;          // pointer in canvas px
+    const under=px>W-2*(r+12)&&py<2*(r+12)+20;
+    const mx=under?r+12:W-r-12,my=r+12;
     const natX=ix-r/(z*bs),natY=iy-r/(z*bs),natS=(r*2)/(z*bs);
     ctx.save();
     ctx.shadowColor="rgba(0,0,0,0.85)";ctx.shadowBlur=18;
@@ -619,8 +636,13 @@ export default function App(){
       const{dragging,movedEnough,step:st,pts:p,mode:m}=S.current;
       S.current.magPos=null;
       // A press that did not move adds a point unless it landed on top of an existing one
+      // The magnifier is shown from the moment of the press, so a press can
+      // slide to fine-tune before release. It adds a point at the release
+      // position unless it landed on an existing point or dragged one.
       const blocked=!!(dragging&&dragging.blocksPlacement);
-      const isTap=!movedEnough&&!blocked&&m==="annotate";
+      const draggedPoint=!!(dragging&&movedEnough);
+      const cancelled=e.type==="mouseleave"||e.type==="touchcancel";   // left the canvas: no point
+      const isTap=!cancelled&&!blocked&&!draggedPoint&&m==="annotate";
       if(isTap&&st>0&&st<STEP_IDS.length-1){
         const gid=STEP_IDS[st];
         const grp=GROUPS.find(g=>g.id===gid);
@@ -700,7 +722,7 @@ export default function App(){
       down:false,zoom:1,panX:0,panY:0,mode:"annotate",
       baseScale:1,lastResults:null,
     });
-    setPts(e);setStep(0);setImgEl(null);setResults(null);setAiResults(null);
+    setPts(e);setStep(0);setImgEl(null);setResults(null);setAiResults(null);setCropImg(null);
     setZoom(1);setMode("annotate");setExportImg(null);
     // clear canvas immediately
     const cv=canvasRef.current;
@@ -1152,7 +1174,11 @@ export default function App(){
         WebkitOverflowScrolling:"touch",position:"relative",zIndex:1}}>
 
         {/* ── Upload screen ── */}
-        {step===0 && (
+        {step===0 && cropImg && (
+          <CropStep img={cropImg} t={t} onApply={startAnnotation} onCancel={()=>setCropImg(null)}/>
+        )}
+
+        {step===0 && !cropImg && (
           <div style={{margin:"auto 0",display:"flex",flexDirection:"column",
             alignItems:"center",gap:20,paddingTop:24,paddingBottom:24}}>
 
@@ -1580,5 +1606,213 @@ function GlassIconBtn({onClick,disabled,children}){
       }}>
       {children}
     </button>
+  );
+}
+
+// ─── Crop & rotate step ───────────────────────────────────────────────────────
+// Shown after a radiograph is loaded, before annotation (same behaviour as the
+// iOS apps). The user straightens the image (fine angle ±45° plus 90° turns)
+// and drags a crop frame. "Apply" bakes rotation + crop into a new image;
+// "Skip" keeps the original. Landmarks are always placed on the result.
+
+const CROP_MAX_OUT = 2400;   // longest side of the produced image, in px
+const CROP_MIN = 0.08;       // minimum crop size (fraction of the rotated box)
+
+function cropRotatedBounds(w,h,deg){
+  const r=deg*Math.PI/180, c=Math.abs(Math.cos(r)), s=Math.abs(Math.sin(r));
+  return {w:w*c+h*s, h:w*s+h*c};
+}
+
+// Rotates img by deg (clockwise, about its centre) and returns the part inside
+// crop (normalized coords of the rotated bounding box) as a canvas.
+function cropRender(img,deg,crop){
+  const W=img.naturalWidth,H=img.naturalHeight;
+  const B=cropRotatedBounds(W,H,deg);
+  const cw=crop.w*B.w, ch=crop.h*B.h;
+  const f=Math.min(1,CROP_MAX_OUT/Math.max(cw,ch));
+  const oc=document.createElement("canvas");
+  oc.width=Math.max(1,Math.round(cw*f)); oc.height=Math.max(1,Math.round(ch*f));
+  const ctx=oc.getContext("2d");
+  ctx.fillStyle="#000"; ctx.fillRect(0,0,oc.width,oc.height);
+  ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high";
+  ctx.scale(f,f);
+  ctx.translate(-crop.x*B.w,-crop.y*B.h);
+  ctx.translate(B.w/2,B.h/2);
+  ctx.rotate(deg*Math.PI/180);
+  ctx.drawImage(img,-W/2,-H/2,W,H);
+  return oc;
+}
+
+function CropStep({img,t,onApply,onCancel}){
+  const cvRef=useRef(null), wrapRef=useRef(null);
+  const [quarter,setQuarter]=useState(0);
+  const [fine,setFine]=useState(0);
+  const [crop,setCrop]=useState({x:0,y:0,w:1,h:1});
+  const [box,setBox]=useState({w:320,h:240,dpr:1});
+  const [adjusting,setAdjusting]=useState(false);
+  const drag=useRef(null);
+  const angle=quarter*90+fine;
+  const unchanged=quarter===0&&Math.abs(fine)<0.05&&crop.x===0&&crop.y===0&&crop.w===1&&crop.h===1;
+
+  // Editor box: full wrapper width, height capped; the rotated image is fitted inside
+  useEffect(()=>{
+    function r(){
+      const w=Math.max(200,Math.round(wrapRef.current?.clientWidth||320));
+      const h=Math.round(Math.min(window.innerHeight*0.55,560,Math.max(220,w*0.9)));
+      setBox({w,h,dpr:Math.max(1,Math.min(window.devicePixelRatio||1,3))});
+    }
+    r(); window.addEventListener("resize",r);
+    return ()=>window.removeEventListener("resize",r);
+  },[]);
+
+  // Layout of the rotated bounding box inside the editor (logical px)
+  function layout(){
+    const B=cropRotatedBounds(img.naturalWidth,img.naturalHeight,angle);
+    const k=Math.min(box.w/B.w,box.h/B.h);
+    const bw=B.w*k,bh=B.h*k;
+    return {k,bw,bh,ox:(box.w-bw)/2,oy:(box.h-bh)/2};
+  }
+
+  useEffect(()=>{
+    const cv=cvRef.current; if(!cv) return;
+    const ctx=cv.getContext("2d");
+    const {k,bw,bh,ox,oy}=layout();
+    ctx.setTransform(box.dpr,0,0,box.dpr,0,0);
+    ctx.clearRect(0,0,box.w,box.h);
+    // rotated image
+    ctx.save();
+    ctx.fillStyle="#000"; ctx.fillRect(ox,oy,bw,bh);
+    ctx.translate(ox+bw/2,oy+bh/2); ctx.rotate(angle*Math.PI/180);
+    ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high";
+    ctx.drawImage(img,-img.naturalWidth*k/2,-img.naturalHeight*k/2,img.naturalWidth*k,img.naturalHeight*k);
+    ctx.restore();
+    // dim outside the frame
+    const fx=ox+crop.x*bw, fy=oy+crop.y*bh, fw=crop.w*bw, fh=crop.h*bh;
+    ctx.save();
+    ctx.fillStyle="rgba(0,0,0,0.55)";
+    ctx.beginPath(); ctx.rect(ox,oy,bw,bh); ctx.rect(fx,fy,fw,fh); ctx.fill("evenodd");
+    // grid
+    const n=adjusting?8:3;
+    ctx.strokeStyle=`rgba(255,255,255,${adjusting?0.35:0.22})`; ctx.lineWidth=0.5;
+    for(let i=1;i<n;i++){
+      ctx.beginPath(); ctx.moveTo(fx+fw*i/n,fy); ctx.lineTo(fx+fw*i/n,fy+fh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(fx,fy+fh*i/n); ctx.lineTo(fx+fw,fy+fh*i/n); ctx.stroke();
+    }
+    // frame + handles
+    ctx.strokeStyle="#00e5ff"; ctx.lineWidth=1.5; ctx.strokeRect(fx,fy,fw,fh);
+    ctx.fillStyle="#00e5ff"; ctx.shadowColor="rgba(0,0,0,0.6)"; ctx.shadowBlur=3;
+    [[fx,fy],[fx+fw,fy],[fx,fy+fh],[fx+fw,fy+fh]].forEach(([x,y])=>ctx.fillRect(x-6,y-6,12,12));
+    [[fx+fw/2,fy,22,4],[fx+fw/2,fy+fh,22,4],[fx,fy+fh/2,4,22],[fx+fw,fy+fh/2,4,22]]
+      .forEach(([x,y,w,h])=>ctx.fillRect(x-w/2,y-h/2,w,h));
+    ctx.restore();
+  },[img,angle,crop,box,adjusting]);
+
+  function localPt(e){
+    const r=cvRef.current.getBoundingClientRect();
+    return {x:(e.clientX-r.left)*(box.w/r.width), y:(e.clientY-r.top)*(box.h/r.height)};
+  }
+  function pickHandle(p){
+    const {bw,bh,ox,oy}=layout();
+    const x0=ox+crop.x*bw, y0=oy+crop.y*bh, x1=x0+crop.w*bw, y1=y0+crop.h*bh;
+    const R=22, near=(a,b)=>Math.abs(a-b)<=R;
+    const inX=p.x>=x0-R&&p.x<=x1+R, inY=p.y>=y0-R&&p.y<=y1+R;
+    if(!inX||!inY) return null;
+    const n=near(p.y,y0), s=near(p.y,y1), w=near(p.x,x0), e=near(p.x,x1);
+    if(n&&w) return "nw"; if(n&&e) return "ne"; if(s&&w) return "sw"; if(s&&e) return "se";
+    if(n) return "n"; if(s) return "s"; if(w) return "w"; if(e) return "e";
+    if(p.x>x0&&p.x<x1&&p.y>y0&&p.y<y1) return "move";
+    return null;
+  }
+  function onDown(e){
+    const p=localPt(e), h=pickHandle(p);
+    if(!h) return;
+    e.preventDefault();
+    cvRef.current.setPointerCapture(e.pointerId);
+    drag.current={h,start:p,crop};
+    setAdjusting(true);
+  }
+  function onMove(e){
+    const d=drag.current; if(!d) return;
+    e.preventDefault();
+    const p=localPt(e), {bw,bh}=layout();
+    const dx=(p.x-d.start.x)/bw, dy=(p.y-d.start.y)/bh, c=d.crop;
+    if(d.h==="move"){
+      setCrop({...c,x:Math.min(Math.max(0,c.x+dx),1-c.w),y:Math.min(Math.max(0,c.y+dy),1-c.h)});
+      return;
+    }
+    let x0=c.x,y0=c.y,x1=c.x+c.w,y1=c.y+c.h;
+    if(d.h.includes("n")) y0+=dy;
+    if(d.h.includes("s")) y1+=dy;
+    if(d.h.includes("w")) x0+=dx;
+    if(d.h.includes("e")) x1+=dx;
+    x0=Math.min(Math.max(0,x0),c.x+c.w-CROP_MIN); y0=Math.min(Math.max(0,y0),c.y+c.h-CROP_MIN);
+    x1=Math.max(Math.min(1,x1),c.x+CROP_MIN);     y1=Math.max(Math.min(1,y1),c.y+CROP_MIN);
+    setCrop({x:x0,y:y0,w:x1-x0,h:y1-y0});
+  }
+  function onUp(){ drag.current=null; setAdjusting(false); }
+  function hoverCursor(e){
+    if(drag.current) return;
+    const h=pickHandle(localPt(e));
+    const map={nw:"nwse-resize",se:"nwse-resize",ne:"nesw-resize",sw:"nesw-resize",n:"ns-resize",s:"ns-resize",e:"ew-resize",w:"ew-resize",move:"move"};
+    cvRef.current.style.cursor=map[h]||"default";
+  }
+  function turn(dir){ setQuarter(q=>(q+dir+4)%4); setCrop({x:0,y:0,w:1,h:1}); }
+  function reset(){ setQuarter(0); setFine(0); setCrop({x:0,y:0,w:1,h:1}); }
+  function apply(){
+    if(unchanged){ onApply(img); return; }
+    const oc=cropRender(img,angle,crop);
+    oc.toBlob(blob=>{
+      const el=new Image();
+      el.onload=()=>onApply(el);
+      el.src=blob?URL.createObjectURL(blob):oc.toDataURL("image/jpeg",0.95);
+    },"image/jpeg",0.95);
+  }
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+      <div style={{...glassStyle({padding:"10px 14px",borderRadius:GL.radiusSm,
+        borderLeft:"2px solid #00e5ff",background:"rgba(0,229,255,0.07)"})}}>
+        <span style={{fontWeight:600,fontSize:13,color:"#00e5ff",letterSpacing:1}}>{t.cropTitle}</span>
+        <span style={{color:GL.textTer,margin:"0 6px"}}>→</span>
+        <span style={{fontSize:13,color:GL.textSec}}>{t.cropHint}</span>
+      </div>
+
+      <div ref={wrapRef} style={{borderRadius:GL.radius,overflow:"hidden",
+        border:`0.5px solid ${GL.border}`,background:"rgba(0,0,0,0.5)"}}>
+        <canvas ref={cvRef}
+          width={Math.round(box.w*box.dpr)} height={Math.round(box.h*box.dpr)}
+          onPointerDown={onDown} onPointerMove={e=>{hoverCursor(e);onMove(e);}}
+          onPointerUp={onUp} onPointerCancel={onUp}
+          style={{display:"block",width:"100%",height:"auto",touchAction:"none",
+            userSelect:"none",WebkitUserSelect:"none"}}/>
+      </div>
+
+      <div style={{...glassStyle({padding:"10px 12px",borderRadius:GL.radiusSm}),
+        display:"flex",alignItems:"center",gap:10}}>
+        <GlassBtn onClick={()=>turn(-1)} style={{padding:"7px 10px"}}><span title={t.cropRotL}>↺ 90°</span></GlassBtn>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:2}}>
+            <span style={{color:GL.textTer,fontFamily:"monospace"}}>{t.cropAngle}</span>
+            <span style={{color:"#00e5ff",fontFamily:"monospace",fontWeight:600}}>
+              {(angle>=0?"+":"")+angle.toFixed(1)}°
+            </span>
+          </div>
+          <input type="range" min={-45} max={45} step={0.5} value={fine}
+            onChange={e=>setFine(parseFloat(e.target.value))}
+            onPointerDown={()=>setAdjusting(true)} onPointerUp={()=>setAdjusting(false)}
+            aria-label={t.cropAngle}
+            style={{width:"100%",accentColor:"#00e5ff"}}/>
+        </div>
+        <GlassBtn onClick={()=>turn(1)} style={{padding:"7px 10px"}}><span title={t.cropRotR}>90° ↻</span></GlassBtn>
+      </div>
+
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+        <GlassBtn onClick={onCancel}>{t.cropCancel}</GlassBtn>
+        <GlassBtn onClick={reset} style={{opacity:unchanged?0.45:1}}>{t.cropReset}</GlassBtn>
+        <div style={{flex:1}}/>
+        <GlassBtn onClick={()=>onApply(img)}>{t.cropSkip}</GlassBtn>
+        <GlassBtn onClick={apply} accent="rgba(0,229,255,0.28)" style={{fontWeight:600}}>{t.cropApply}</GlassBtn>
+      </div>
+    </div>
   );
 }
