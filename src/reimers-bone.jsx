@@ -31,8 +31,8 @@ const TRANSLATIONS = {
     cropRotL:"Girar 90° à esquerda",cropRotR:"Girar 90° à direita",
     // HOPE study edition
     hopeTitle:"ESTUDO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
-    hopeLoadDesc:"Informe o identificador do sujeito e carregue a radiografia de bacia AP. Primeiro mede-se o índice de Reimers e o índice acetabular; depois, na mesma imagem, os ângulos cervicodiafisário (NSA) e cabeça-diáfise (HSA).",
-    subjectLabel:"Identificador do sujeito",subjectPh:"ex.: HOPE-001",subjectNeeded:"Informe o identificador do sujeito para começar",subjectShort:"Sujeito",
+    hopeLoadDesc:"Carregue a radiografia de bacia AP (com o identificador do sujeito, se quiser). Primeiro mede-se o índice de Reimers e o índice acetabular; depois, na mesma imagem, os ângulos cervicodiafisário (NSA) e cabeça-diáfise (HSA).",
+    subjectLabel:"Identificador do sujeito",subjectPh:"ex.: HOPE-001",subjectNeeded:"Informe o identificador do sujeito para começar",subjectShort:"Sujeito",useIdLabel:"Usar identificador do sujeito",
     grpShaftR:"Diáfise D",grpHeadR:"Cabeça D",grpNeckR:"Colo D",grpPhysR:"Fise D",
     grpShaftL:"Diáfise E",grpHeadL:"Cabeça E",grpNeckL:"Colo E",grpPhysL:"Fise E",
     slotShaft:["cortical medial (nível proximal)","cortical lateral (nível proximal)","cortical medial (nível distal)","cortical lateral (nível distal)"],
@@ -76,8 +76,8 @@ const TRANSLATIONS = {
     cropRotL:"Rotate 90° left",cropRotR:"Rotate 90° right",
     // HOPE study edition
     hopeTitle:"HOPE STUDY",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
-    hopeLoadDesc:"Enter the subject identifier and load an AP pelvis radiograph. First the Reimers index and acetabular index are measured; then, on the same image, the neck-shaft angle (NSA) and head-shaft angle (HSA).",
-    subjectLabel:"Subject identifier",subjectPh:"e.g. HOPE-001",subjectNeeded:"Enter the subject identifier to start",subjectShort:"Subject",
+    hopeLoadDesc:"Load an AP pelvis radiograph (with the subject identifier, if you wish). First the Reimers index and acetabular index are measured; then, on the same image, the neck-shaft angle (NSA) and head-shaft angle (HSA).",
+    subjectLabel:"Subject identifier",subjectPh:"e.g. HOPE-001",subjectNeeded:"Enter the subject identifier to start",subjectShort:"Subject",useIdLabel:"Use subject identifier",
     grpShaftR:"Shaft R",grpHeadR:"Head R",grpNeckR:"Neck R",grpPhysR:"Physis R",
     grpShaftL:"Shaft L",grpHeadL:"Head L",grpNeckL:"Neck L",grpPhysL:"Physis L",
     slotShaft:["medial cortex (proximal level)","lateral cortex (proximal level)","medial cortex (distal level)","lateral cortex (distal level)"],
@@ -121,8 +121,8 @@ const TRANSLATIONS = {
     cropRotL:"Girar 90° a la izquierda",cropRotR:"Girar 90° a la derecha",
     // HOPE study edition
     hopeTitle:"ESTUDIO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
-    hopeLoadDesc:"Ingrese el identificador del sujeto y cargue la radiografía de pelvis AP. Primero se mide el índice de Reimers y el índice acetabular; después, en la misma imagen, el ángulo cervicodiafisario (NSA) y el ángulo cabeza-diáfisis (HSA).",
-    subjectLabel:"Identificador del sujeto",subjectPh:"ej.: HOPE-001",subjectNeeded:"Ingrese el identificador del sujeto para comenzar",subjectShort:"Sujeto",
+    hopeLoadDesc:"Cargue la radiografía de pelvis AP (con el identificador del sujeto, si lo desea). Primero se mide el índice de Reimers y el índice acetabular; después, en la misma imagen, el ángulo cervicodiafisario (NSA) y el ángulo cabeza-diáfisis (HSA).",
+    subjectLabel:"Identificador del sujeto",subjectPh:"ej.: HOPE-001",subjectNeeded:"Ingrese el identificador del sujeto para comenzar",subjectShort:"Sujeto",useIdLabel:"Usar identificador del sujeto",
     grpShaftR:"Diáfisis D",grpHeadR:"Cabeza D",grpNeckR:"Cuello D",grpPhysR:"Fisis D",
     grpShaftL:"Diáfisis I",grpHeadL:"Cabeza I",grpNeckL:"Cuello I",grpPhysL:"Fisis I",
     slotShaft:["cortical medial (nivel proximal)","cortical lateral (nivel proximal)","cortical medial (nivel distal)","cortical lateral (nivel distal)"],
@@ -543,6 +543,11 @@ export default function App({variant}={}){
   const [exportImg,setExportImg]=useState(null);
   const [cropImg,setCropImg]=useState(null);   // image waiting on the crop step
   const [subjectId,setSubjectId]=useState("");  // HOPE: subject identifier
+  // HOPE: the identifier is optional, switched on/off by a checkbox (remembered on this device)
+  const [useId,setUseIdState]=useState(()=>{ try{ return localStorage.getItem("hope.useId")!=="0"; }catch(e){ return true; } });
+  function setUseId(v){ setUseIdState(v); try{ localStorage.setItem("hope.useId",v?"1":"0"); }catch(e){} }
+  const idText=useId?subjectId.trim():"";
+  const idMissing=hope&&useId&&!subjectId.trim();
   const [fileName,setFileName]=useState("");    // HOPE: name of the loaded radiograph
   const [hopeFiles,setHopeFiles]=useState(null);// HOPE: files ready to download
 
@@ -585,7 +590,7 @@ export default function App({variant}={}){
 
   function loadFile(file){
     if(!file) return;
-    if(hope&&!subjectId.trim()) return;
+    if(idMissing) return;
     setFileName(file.name||"");
     const rd=new FileReader();
     rd.onload=ev=>{
@@ -1157,7 +1162,7 @@ export default function App({variant}={}){
     ctx.letterSpacing = "1.5px";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(hope ? `${t.hopeTitle}  ·  ${t.subjectShort.toUpperCase()}: ${subjectId.trim()}` : t.appTitle, W / 2, headerY);
+    ctx.fillText(hope ? (idText ? `${t.hopeTitle}  ·  ${t.subjectShort.toUpperCase()}: ${idText}` : t.hopeTitle) : t.appTitle, W / 2, headerY);
     ctx.restore();
 
     // thin rule below header
@@ -1397,13 +1402,15 @@ export default function App({variant}={}){
     return new Promise(res=>cv.toBlob(b=>res(b),"image/png"));
   }
   async function handleHopeExport(){
-    const id=subjectId.trim();
-    if(!id){ alert(t.subjectNeeded); return; }
-    const safe=id.replace(/[^A-Za-z0-9_-]+/g,"_");
+    const id=idText;
+    if(idMissing){ alert(t.subjectNeeded); return; }
     const p=S.current.pts;
     const rr=calcReimers(p)||{}, ai=calcAcetabular(p)||{}, hr=calcHip(p);
     const now=new Date();
     const pad=n=>String(n).padStart(2,"0");
+    // File names: the identifier when used, otherwise the date and time
+    const safe=id?id.replace(/[^A-Za-z0-9_-]+/g,"_")
+      :`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
     const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
     // Always a dot as decimal separator and one decimal place (e.g. 12.2), never a comma
     const fx=v=>Number(v).toFixed(1);
@@ -1443,7 +1450,7 @@ export default function App({variant}={}){
   async function shareAll(){
     try{
       const fl=(hopeFiles||[]).map(f=>new File([f.blob],f.name,{type:f.blob.type}));
-      await navigator.share({files:fl,title:`HOPE ${subjectId.trim()}`});
+      await navigator.share({files:fl,title:`HOPE ${idText}`.trim()});
     }catch(e){}
   }
   // Moves to the NSA/HSA phase: first incomplete group, or its result
@@ -1529,11 +1536,11 @@ export default function App({variant}={}){
             {hope?t.uiHopeSubtitle:t.uiSubtitle}
           </div>
         </div>
-        {hope && step>0 && subjectId.trim() && (
+        {hope && step>0 && idText && (
           <div style={{...glassStyle({padding:"4px 10px",borderRadius:999,background:GL.glassMid}),
             ...TY.caption1,color:GL.textSec,flexShrink:0,maxWidth:180,overflow:"hidden",
             textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-            {t.subjectShort}: <b style={{color:GL.textPri,fontWeight:600}}>{subjectId.trim()}</b>
+            {t.subjectShort}: <b style={{color:GL.textPri,fontWeight:600}}>{idText}</b>
           </div>
         )}
         {/* Language: compact pop-up button (native picker on iPhone). HOPE is Portuguese only. */}
@@ -1654,6 +1661,13 @@ export default function App({variant}={}){
             </div>
 
             {hope && (
+              <div style={{display:"flex",flexDirection:"column",gap:SP.sm,width:280,alignItems:"center"}}>
+              <label style={{display:"flex",alignItems:"center",gap:SP.sm,cursor:"pointer",...TY.subhead,color:GL.textSec}}>
+                <input type="checkbox" checked={useId} onChange={e=>setUseId(e.target.checked)}
+                  style={{width:18,height:18,accentColor:GL.accent,margin:0,cursor:"pointer"}}/>
+                {t.useIdLabel}
+              </label>
+              {useId && (
               <label style={{display:"flex",flexDirection:"column",gap:SP.sm,width:280}}>
                 <span style={{...TY.section,color:GL.textSec,textAlign:"center"}}>{t.subjectLabel}</span>
                 <input value={subjectId} onChange={e=>setSubjectId(e.target.value)}
@@ -1662,15 +1676,17 @@ export default function App({variant}={}){
                     background:"rgba(255,255,255,0.08)",border:`0.5px solid ${GL.borderHigh}`}),
                     ...TY.body,color:GL.textPri,fontFamily:"inherit",outline:"none",textAlign:"center"}}/>
               </label>
+              )}
+              </div>
             )}
 
             {/* Drop zone */}
             <div
-              onClick={()=>{ if(hope&&!subjectId.trim()) return; fileInputRef.current?.click(); }}
+              onClick={()=>{ if(idMissing) return; fileInputRef.current?.click(); }}
               onDragOver={e=>e.preventDefault()}
               onDrop={e=>{e.preventDefault();loadFile(e.dataTransfer.files[0]);}}
               style={{
-                opacity:(hope&&!subjectId.trim())?0.4:1,
+                opacity:idMissing?0.4:1,
                 ...glassStyle({
                   width:280,minHeight:156,boxSizing:"border-box",padding:`${SP.xl}px ${SP.lg}px`,
                   borderRadius:22,
@@ -1701,7 +1717,7 @@ export default function App({variant}={}){
               </div>
               <div style={{...TY.headline,color:GL.textPri}}>{t.touchDrop}</div>
               <div style={{...TY.footnote,color:GL.textSec,textAlign:"center"}}>
-                {(hope&&!subjectId.trim())?t.subjectNeeded:t.fileTypes}
+                {idMissing?t.subjectNeeded:t.fileTypes}
               </div>
             </div>
 
@@ -2016,7 +2032,7 @@ export default function App({variant}={}){
 
             {/* HOPE: NSA / HSA result and export */}
             {isResult2 && hipRes && (
-              <HopeResults t={t} hipRes={hipRes} pts={pts} subjectId={subjectId} setSubjectId={setSubjectId}
+              <HopeResults t={t} hipRes={hipRes} pts={pts} subjectId={subjectId} setSubjectId={setSubjectId} useId={useId} setUseId={setUseId}
                 onBack={goReimersResult} onExport={handleHopeExport} onReset={askReset}/>
             )}
           </div>
@@ -2033,7 +2049,7 @@ export default function App({variant}={}){
             style={{...glassStyle({padding:SP.xl,borderRadius:22,background:"rgba(13,22,40,0.92)"}),
               width:"100%",maxWidth:560,boxSizing:"border-box",display:"flex",flexDirection:"column",gap:SP.md,maxHeight:"100%",overflowY:"auto"}}>
             <div style={{...TY.headline,color:GL.textPri}}>
-              {t.exportTitle} · {subjectId.trim()}
+              {t.exportTitle}{idText?` · ${idText}`:""}
             </div>
             <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
               {hopeFiles.filter(f=>f.img).map(f=>(
@@ -2088,7 +2104,7 @@ export default function App({variant}={}){
 }
 
 // ─── HOPE result panel ────────────────────────────────────────────────────────
-function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onReset}){
+function HopeResults({t,hipRes,pts,subjectId,setSubjectId,useId,setUseId,onBack,onExport,onReset}){
   const rr=calcReimers(pts)||{}, ai=calcAcetabular(pts)||{};
   const sides=[{side:t.sideR,key:"right",col:C.perkins_r},{side:t.sideL,key:"left",col:C.perkins_l}];
   function card(title,field){
@@ -2151,17 +2167,24 @@ function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onRese
         </table>
       </div>
 
-      <label style={{display:"flex",alignItems:"center",gap:SP.md,marginTop:SP.xs,minHeight:48,boxSizing:"border-box",...glassStyle({padding:`0 ${SP.lg}px`,borderRadius:GL.radiusSm})}}>
+      <label style={{display:"flex",alignItems:"center",gap:SP.sm,marginTop:SP.xs,cursor:"pointer",...TY.subhead,color:GL.textSec}}>
+        <input type="checkbox" checked={useId} onChange={e=>setUseId(e.target.checked)}
+          style={{width:18,height:18,accentColor:GL.accent,margin:0,cursor:"pointer"}}/>
+        {t.useIdLabel}
+      </label>
+      {useId && (
+      <label style={{display:"flex",alignItems:"center",gap:SP.md,minHeight:48,boxSizing:"border-box",...glassStyle({padding:`0 ${SP.lg}px`,borderRadius:GL.radiusSm})}}>
         <span style={{...TY.subhead,color:GL.textSec,whiteSpace:"nowrap"}}>{t.subjectLabel}</span>
         <input value={subjectId} onChange={e=>setSubjectId(e.target.value)} placeholder={t.subjectPh}
           autoComplete="off" spellCheck={false}
           style={{flex:1,minWidth:0,background:"transparent",border:"none",outline:"none",
             ...TY.body,fontWeight:600,color:GL.textPri,fontFamily:"inherit",textAlign:"right"}}/>
       </label>
+      )}
 
       <GlassBtn accent="rgba(94,174,255,0.3)" onClick={onExport}
         size="large" style={{width:"100%",justifyContent:"center",
-          opacity:subjectId.trim()?1:0.5}}>
+          opacity:(!useId||subjectId.trim())?1:0.5}}>
         {t.btnExportHope}
       </GlassBtn>
       <div style={{display:"flex",gap:SP.md}}>
