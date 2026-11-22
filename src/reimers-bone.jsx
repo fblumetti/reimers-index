@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import FISE_LOGO from "./assets/instituto-fise.png";
 import HOPE_LOGO from "./assets/hope-logo.png";
+import HOPE_ICON from "./assets/hope-icon.png";
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 const TRANSLATIONS = {
@@ -1478,10 +1479,10 @@ export default function App({variant}={}){
         position:"relative",zIndex:10,
       }}>
         {hope ? (
-          <img src={HOPE_LOGO} alt="HOPE"
-            style={{width:40,height:40,borderRadius:10,flexShrink:0,objectFit:"contain",
-              background:"#fff",padding:"2px 6px",boxSizing:"border-box",
-              border:`0.5px solid ${GL.borderHigh}`}}/>
+          <img src={HOPE_ICON} alt="HOPE"
+            style={{width:40,height:40,borderRadius:10,flexShrink:0,objectFit:"cover",
+              filter:"drop-shadow(0 0 8px rgba(94,174,255,0.4))",
+              border:`0.5px solid ${GL.borderHigh}`,background:"#000"}}/>
         ) : (
         <img src={LOGO_SRC} alt="pelve"
           style={{width:40,height:40,borderRadius:10,flexShrink:0,
@@ -1595,10 +1596,9 @@ export default function App({variant}={}){
             {/* Logo */}
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:SP.xl}}>
               {hope ? (
-              <div style={{width:96,height:120,borderRadius:24,background:"#fff",
-                display:"flex",alignItems:"center",justifyContent:"center",
-                boxShadow:"0 0 30px rgba(94,174,255,0.25)",border:`0.5px solid ${GL.borderHigh}`}}>
-                <img src={HOPE_LOGO} alt="HOPE" style={{height:108,width:"auto",objectFit:"contain"}}/>
+              <div style={{width:96,height:96,borderRadius:24,overflow:"hidden",background:"#000",
+                boxShadow:"0 0 30px rgba(94,174,255,0.2)",border:`0.5px solid ${GL.borderHigh}`}}>
+                <img src={HOPE_ICON} alt="HOPE" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
               </div>
               ) : (
               <div style={{
