@@ -1,0 +1,13 @@
+{
+  "name": "Estudo HOPE · Reimers App",
+  "short_name": "HOPE",
+  "start_url": "/hope/",
+  "scope": "/hope/",
+  "display": "standalone",
+  "background_color": "#070d14",
+  "theme_color": "#070d14",
+  "icons": [
+    { "src": "/hope/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/hope/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

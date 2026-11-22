@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import FISE_LOGO from "./assets/instituto-fise.png";
+import HOPE_LOGO from "./assets/hope-logo.png";
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 const TRANSLATIONS = {
@@ -26,6 +27,25 @@ const TRANSLATIONS = {
     cropTitle:"RECORTAR E ALINHAR",cropHint:"Arraste os cantos para cortar · use a régua para alinhar a bacia",
     cropAngle:"Ângulo",cropReset:"Restaurar",cropSkip:"Pular",cropApply:"Aplicar",cropCancel:"Cancelar",
     cropRotL:"Girar 90° à esquerda",cropRotR:"Girar 90° à direita",
+    // HOPE study edition
+    hopeTitle:"ESTUDO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
+    hopeLoadDesc:"Informe o identificador do sujeito e carregue a radiografia de bacia AP. Primeiro mede-se o índice de Reimers e o índice acetabular; depois, na mesma imagem, os ângulos cervicodiafisário (NSA) e cabeça-diáfise (HSA).",
+    subjectLabel:"Identificador do sujeito",subjectPh:"ex.: HOPE-001",subjectNeeded:"Informe o identificador do sujeito para começar",subjectShort:"Sujeito",
+    grpShaftR:"Diáfise D",grpHeadR:"Cabeça D",grpNeckR:"Colo D",grpPhysR:"Fise D",
+    grpShaftL:"Diáfise E",grpHeadL:"Cabeça E",grpNeckL:"Colo E",grpPhysL:"Fise E",
+    slotShaft:["cortical medial (nível proximal)","cortical lateral (nível proximal)","cortical medial (nível distal)","cortical lateral (nível distal)"],
+    slotHead:["contorno da cabeça (ponto 1 de 3)","contorno da cabeça (ponto 2 de 3)","contorno da cabeça (ponto 3 de 3)"],
+    slotNeck:["borda superior do colo (parte mais estreita)","borda inferior do colo (parte mais estreita)"],
+    slotPhys:["extremidade medial da fise","extremidade lateral da fise"],
+    nsaTitle:"ÂNGULO CERVICODIAFISÁRIO (NSA)",hsaTitle:"ÂNGULO CABEÇA-DIÁFISE (HSA)",
+    nsaCard:"NSA · CERVICODIAFISÁRIO",hsaCard:"HSA · CABEÇA-DIÁFISE",
+    phase1Done:"✓ Reimers e IA registrados. Agora a imagem será apresentada novamente para medir NSA e HSA.",
+    tipDragHip:"💡 Arraste qualquer ponto para corrigir — os ângulos recalculam automaticamente",
+    btnContinueHip:"Continuar: NSA e HSA →",btnBackReimers:"← Rever Reimers e IA",btnExportHope:"⬇ Exportar CSV e imagens",
+    summaryTitle:"RESUMO DAS MEDIDAS",colMeasure:"Medida",colRight:"Direito",colLeft:"Esquerdo",
+    exportTitle:"Arquivos do sujeito",dlAll:"⬇ Baixar todos",dlShare:"Compartilhar",dlClose:"Fechar",
+    fileCsv:"Planilha CSV (todas as medidas)",filePng1:"Imagem Reimers e IA",filePng2:"Imagem NSA e HSA",
+    hipIncomplete:"incompleto",
   },
   en: {
     appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
@@ -50,6 +70,25 @@ const TRANSLATIONS = {
     cropTitle:"CROP & STRAIGHTEN",cropHint:"Drag the corners to crop · use the dial to level the pelvis",
     cropAngle:"Angle",cropReset:"Reset",cropSkip:"Skip",cropApply:"Apply",cropCancel:"Cancel",
     cropRotL:"Rotate 90° left",cropRotR:"Rotate 90° right",
+    // HOPE study edition
+    hopeTitle:"HOPE STUDY",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
+    hopeLoadDesc:"Enter the subject identifier and load an AP pelvis radiograph. First the Reimers index and acetabular index are measured; then, on the same image, the neck-shaft angle (NSA) and head-shaft angle (HSA).",
+    subjectLabel:"Subject identifier",subjectPh:"e.g. HOPE-001",subjectNeeded:"Enter the subject identifier to start",subjectShort:"Subject",
+    grpShaftR:"Shaft R",grpHeadR:"Head R",grpNeckR:"Neck R",grpPhysR:"Physis R",
+    grpShaftL:"Shaft L",grpHeadL:"Head L",grpNeckL:"Neck L",grpPhysL:"Physis L",
+    slotShaft:["medial cortex (proximal level)","lateral cortex (proximal level)","medial cortex (distal level)","lateral cortex (distal level)"],
+    slotHead:["head contour (point 1 of 3)","head contour (point 2 of 3)","head contour (point 3 of 3)"],
+    slotNeck:["superior neck border (narrowest part)","inferior neck border (narrowest part)"],
+    slotPhys:["medial end of the physis","lateral end of the physis"],
+    nsaTitle:"NECK-SHAFT ANGLE (NSA)",hsaTitle:"HEAD-SHAFT ANGLE (HSA)",
+    nsaCard:"NSA · NECK-SHAFT",hsaCard:"HSA · HEAD-SHAFT",
+    phase1Done:"✓ Reimers and AI recorded. The image will now be shown again to measure NSA and HSA.",
+    tipDragHip:"💡 Drag any point to adjust — the angles update automatically",
+    btnContinueHip:"Continue: NSA and HSA →",btnBackReimers:"← Review Reimers and AI",btnExportHope:"⬇ Export CSV and images",
+    summaryTitle:"MEASUREMENT SUMMARY",colMeasure:"Measure",colRight:"Right",colLeft:"Left",
+    exportTitle:"Subject files",dlAll:"⬇ Download all",dlShare:"Share",dlClose:"Close",
+    fileCsv:"CSV spreadsheet (all measures)",filePng1:"Reimers and AI image",filePng2:"NSA and HSA image",
+    hipIncomplete:"incomplete",
   },
   es: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
@@ -74,6 +113,25 @@ const TRANSLATIONS = {
     cropTitle:"RECORTAR Y ALINEAR",cropHint:"Arrastre las esquinas para recortar · use la regla para alinear la pelvis",
     cropAngle:"Ángulo",cropReset:"Restaurar",cropSkip:"Omitir",cropApply:"Aplicar",cropCancel:"Cancelar",
     cropRotL:"Girar 90° a la izquierda",cropRotR:"Girar 90° a la derecha",
+    // HOPE study edition
+    hopeTitle:"ESTUDIO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
+    hopeLoadDesc:"Ingrese el identificador del sujeto y cargue la radiografía de pelvis AP. Primero se mide el índice de Reimers y el índice acetabular; después, en la misma imagen, el ángulo cervicodiafisario (NSA) y el ángulo cabeza-diáfisis (HSA).",
+    subjectLabel:"Identificador del sujeto",subjectPh:"ej.: HOPE-001",subjectNeeded:"Ingrese el identificador del sujeto para comenzar",subjectShort:"Sujeto",
+    grpShaftR:"Diáfisis D",grpHeadR:"Cabeza D",grpNeckR:"Cuello D",grpPhysR:"Fisis D",
+    grpShaftL:"Diáfisis I",grpHeadL:"Cabeza I",grpNeckL:"Cuello I",grpPhysL:"Fisis I",
+    slotShaft:["cortical medial (nivel proximal)","cortical lateral (nivel proximal)","cortical medial (nivel distal)","cortical lateral (nivel distal)"],
+    slotHead:["contorno de la cabeza (punto 1 de 3)","contorno de la cabeza (punto 2 de 3)","contorno de la cabeza (punto 3 de 3)"],
+    slotNeck:["borde superior del cuello (parte más estrecha)","borde inferior del cuello (parte más estrecha)"],
+    slotPhys:["extremo medial de la fisis","extremo lateral de la fisis"],
+    nsaTitle:"ÁNGULO CERVICODIAFISARIO (NSA)",hsaTitle:"ÁNGULO CABEZA-DIÁFISIS (HSA)",
+    nsaCard:"NSA · CERVICODIAFISARIO",hsaCard:"HSA · CABEZA-DIÁFISIS",
+    phase1Done:"✓ Reimers e IA registrados. Ahora la imagen se mostrará de nuevo para medir NSA y HSA.",
+    tipDragHip:"💡 Arrastre cualquier punto para corregir — los ángulos se actualizan automáticamente",
+    btnContinueHip:"Continuar: NSA y HSA →",btnBackReimers:"← Revisar Reimers e IA",btnExportHope:"⬇ Exportar CSV e imágenes",
+    summaryTitle:"RESUMEN DE MEDIDAS",colMeasure:"Medida",colRight:"Derecho",colLeft:"Izquierdo",
+    exportTitle:"Archivos del sujeto",dlAll:"⬇ Descargar todos",dlShare:"Compartir",dlClose:"Cerrar",
+    fileCsv:"Planilla CSV (todas las medidas)",filePng1:"Imagen Reimers e IA",filePng2:"Imagen NSA y HSA",
+    hipIncomplete:"incompleto",
   },
 };
 
@@ -95,6 +153,16 @@ const C={
 };
 
 const STEP_IDS=["upload","hilgenreiner","perkins_r","perkins_l","femur_r","femur_l","result"];
+// HOPE study edition: after the Reimers/AI result the same image is shown again
+// for the neck-shaft (NSA) and head-shaft (HSA) angles, then a second result.
+const HIP_STEP_IDS=["shaft_r","head_r","neck_r","phys_r","shaft_l","head_l","neck_l","phys_l"];
+const STEP_IDS_HOPE=[...STEP_IDS,...HIP_STEP_IDS,"result2"];
+const HIP_PHASE=new Set([...HIP_STEP_IDS,"result2"]);
+function isResultId(id){ return id==="result"||id==="result2"; }
+function emptyPts(){
+  return {hilgenreiner:[],perkins_r:[],perkins_l:[],femur_r:[],femur_l:[],
+    shaft_r:[],head_r:[],neck_r:[],phys_r:[],shaft_l:[],head_l:[],neck_l:[],phys_l:[]};
+}
 const DOT_R=7;
 const HIT_R_CSS=40;          // drag target around an existing point (CSS px, constant at any zoom)
 const PLACE_BLOCK_R_CSS=20;  // a tap closer than this to an existing point does not add a new one
@@ -249,15 +317,161 @@ function classify(i,t){
   return {label:t.clsLux,col:"#f87171"};
 }
 
+// ─── HOPE: neck-shaft (NSA) and head-shaft (HSA) angles ───────────────────────
+//
+//  Landmarks per side (image coordinates):
+//    shaft: medial + lateral cortex at a proximal level, then at a distal level.
+//           The shaft axis joins the two midpoints.
+//    head:  3 points on the femoral head contour → circle → head centre.
+//    neck:  superior + inferior border at the narrowest part → neck midpoint.
+//           Neck axis = neck midpoint → head centre.
+//    physis: medial + lateral ends of the capital physis.
+//  NSA = angle between the shaft axis (pointing distally) and the neck axis.
+//  HSA = angle between the shaft axis (pointing distally) and the line
+//        perpendicular to the physis (pointing towards the epiphysis).
+function vSub(a,b){ return {x:a.x-b.x,y:a.y-b.y}; }
+function vMid(a,b){ return {x:(a.x+b.x)/2,y:(a.y+b.y)/2}; }
+function vDot(a,b){ return a.x*b.x+a.y*b.y; }
+function vUnit(a){ const l=Math.hypot(a.x,a.y); return l?{x:a.x/l,y:a.y/l}:null; }
+function vNeg(a){ return {x:-a.x,y:-a.y}; }
+function angDeg(u,v){ return Math.round(Math.acos(Math.max(-1,Math.min(1,vDot(u,v))))*1800/Math.PI)/10; }
+function circle3(a,b,c){
+  const d=2*(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y));
+  if(Math.abs(d)<1e-9) return null;
+  const a2=a.x*a.x+a.y*a.y,b2=b.x*b.x+b.y*b.y,c2=c.x*c.x+c.y*c.y;
+  const ux=(a2*(b.y-c.y)+b2*(c.y-a.y)+c2*(a.y-b.y))/d;
+  const uy=(a2*(c.x-b.x)+b2*(a.x-c.x)+c2*(b.x-a.x))/d;
+  return {c:{x:ux,y:uy},r:Math.hypot(a.x-ux,a.y-uy)};
+}
+// Intersection of the lines p1 + s·d1 and p2 + t·d2 (null when parallel)
+function lineMeet(p1,d1,p2,d2){
+  const den=d1.x*d2.y-d1.y*d2.x;
+  if(Math.abs(den)<1e-9) return null;
+  const s=((p2.x-p1.x)*d2.y-(p2.y-p1.y)*d2.x)/den;
+  return {x:p1.x+s*d1.x,y:p1.y+s*d1.y};
+}
+function hipSide(sh=[],hd=[],nk=[],ph=[]){
+  const g={};
+  if(sh.length>=2) g.m1=vMid(sh[0],sh[1]);
+  if(sh.length>=4) g.m2=vMid(sh[2],sh[3]);
+  if(hd.length>=3){ const c=circle3(hd[0],hd[1],hd[2]); if(c){g.hc=c.c;g.hr=c.r;} else g.headErr=true; }
+  if(nk.length>=2) g.nm=vMid(nk[0],nk[1]);
+  if(ph.length>=2) g.pm=vMid(ph[0],ph[1]);
+  if(g.m1&&g.m2){
+    let d=vUnit(vSub(g.m2,g.m1));
+    // The distal direction points away from the proximal femur (head, neck or physis)
+    const ref=g.hc||g.nm||g.pm;
+    if(d&&ref&&vDot(d,vSub(ref,g.m1))>0) d=vNeg(d);
+    g.d=d;
+  }
+  if(g.d&&g.hc&&g.nm){
+    const n=vUnit(vSub(g.hc,g.nm));
+    if(n){ g.n=n; g.nsa=angDeg(g.d,n); }
+  }
+  if(g.d&&ph.length>=2){
+    const v=vSub(ph[1],ph[0]);
+    let e=vUnit({x:-v.y,y:v.x});
+    if(e){ if(vDot(e,g.d)>0) e=vNeg(e); g.e=e; g.hsa=angDeg(g.d,e); }
+  }
+  return g;
+}
+function calcHip(pts){
+  return {
+    right:hipSide(pts.shaft_r,pts.head_r,pts.neck_r,pts.phys_r),
+    left: hipSide(pts.shaft_l,pts.head_l,pts.neck_l,pts.phys_l),
+  };
+}
+
+// Draws the NSA/HSA landmarks and axes. toCv maps image → canvas coords,
+// k = canvas px per image px, dotFn(x,y,col,label) draws a landmark.
+function drawHipOverlay(ctx,p,toCv,k,W,H,dotFn){
+  function clipLine(a,b,col,lw,alpha,dash){
+    const dx=b.x-a.x,dy=b.y-a.y; if(!dx&&!dy) return;
+    const ts=[-a.x/dx,(W-a.x)/dx,-a.y/dy,(H-a.y)/dy].filter(v=>isFinite(v)&&!isNaN(v));
+    const cs=ts.map(v=>({x:a.x+v*dx,y:a.y+v*dy})).filter(q=>q.x>=-2&&q.x<=W+2&&q.y>=-2&&q.y<=H+2);
+    if(cs.length<2) return;
+    seg(cs[0],cs[cs.length-1],col,lw,alpha,dash);
+  }
+  function seg(a,b,col,lw=1.5,alpha=1,dash=[]){
+    ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.setLineDash(dash);
+    ctx.shadowColor=col;ctx.shadowBlur=4;
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
+  }
+  function c2(pt){ const c=toCv(pt); return {x:c.cx,y:c.cy}; }
+  function along(pt,dir,len){ return {x:pt.x+dir.x*len,y:pt.y+dir.y*len}; }
+  function label(x,y,lines,col,align){
+    ctx.save();
+    ctx.font="600 11px -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif";
+    ctx.textAlign=align;ctx.textBaseline="middle";
+    ctx.lineJoin="round";ctx.lineWidth=3;ctx.strokeStyle="rgba(0,0,0,0.85)";
+    lines.forEach((tx,i)=>{ ctx.strokeText(tx,x,y+i*14); ctx.fillStyle=col; ctx.fillText(tx,x,y+i*14); });
+    ctx.restore();
+  }
+  [["r",C.perkins_r],["l",C.perkins_l]].forEach(([s,col])=>{
+    const sh=p["shaft_"+s]||[],hd=p["head_"+s]||[],nk=p["neck_"+s]||[],ph=p["phys_"+s]||[];
+    const g=hipSide(sh,hd,nk,ph);
+    // shaft: cortex pairs, midpoints and axis
+    if(sh.length>=2) seg(c2(sh[0]),c2(sh[1]),col,1,0.7,[4,3]);
+    if(sh.length>=4) seg(c2(sh[2]),c2(sh[3]),col,1,0.7,[4,3]);
+    if(g.m1&&g.m2) clipLine(c2(g.m1),c2(g.m2),col,1.5,0.85,[]);
+    // head circle and centre
+    if(g.hc){
+      const c=c2(g.hc);
+      ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.globalAlpha=0.9;
+      ctx.beginPath();ctx.arc(c.x,c.y,g.hr*k,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(c.x-6,c.y);ctx.lineTo(c.x+6,c.y);ctx.moveTo(c.x,c.y-6);ctx.lineTo(c.x,c.y+6);ctx.stroke();
+      ctx.restore();
+    }
+    // neck: border pair and neck axis (from its meeting point with the shaft axis to the head)
+    if(nk.length>=2) seg(c2(nk[0]),c2(nk[1]),col,1,0.7,[4,3]);
+    let vN=null,vH=null;
+    if(g.hc&&g.nm){
+      const n=vUnit(vSub(g.hc,g.nm));
+      const start=(g.m1&&g.d&&n)?lineMeet(g.m1,g.d,g.nm,n):null;
+      vN=start;
+      const from=start||g.nm, to=n?along(g.hc,n,g.hr*0.6):g.hc;
+      seg(c2(from),c2(to),col,2,1,[]);
+    }
+    // physis line (slightly extended) and its perpendicular towards the epiphysis
+    if(ph.length>=2){
+      const a=c2(ph[0]),b=c2(ph[1]);
+      const ex={x:(b.x-a.x)*0.2,y:(b.y-a.y)*0.2};
+      seg({x:a.x-ex.x,y:a.y-ex.y},{x:b.x+ex.x,y:b.y+ex.y},col,2,1,[]);
+      if(g.e){
+        const plen=Math.hypot(ph[1].x-ph[0].x,ph[1].y-ph[0].y)*0.6;
+        const start=(g.m1&&g.d)?lineMeet(g.m1,g.d,g.pm,g.e):null;
+        vH=start;
+        seg(c2(start||g.pm),c2(along(g.pm,g.e,plen)),col,1.5,1,[6,4]);
+      }
+    }
+    // dots
+    sh.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"D");});
+    hd.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"C");});
+    nk.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"N");});
+    ph.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"F");});
+    // angle values next to the distal end of the shaft axis
+    const lines=[];
+    if(g.nsa!=null) lines.push("NSA "+g.nsa+"°");
+    if(g.hsa!=null) lines.push("HSA "+g.hsa+"°");
+    const anchor=g.m2||g.m1;
+    if(lines.length&&anchor){
+      const a=c2(anchor), right=s==="r";
+      label(a.x+(right?-20:20),a.y+22,lines,col,right?"right":"left");
+    }
+  });
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
-export default function App(){
+export default function App({variant}={}){
+  const hope=variant==="hope";
+  const stepIds=hope?STEP_IDS_HOPE:STEP_IDS;
   const canvasRef=useRef(null);
   const wrapRef=useRef(null);
   const fileInputRef=useRef(null);
 
   const S=useRef({
     step:0,
-    pts:{hilgenreiner:[],perkins_r:[],perkins_l:[],femur_r:[],femur_l:[]},
+    pts:emptyPts(),
     imgEl:null,imgNatW:1,imgNatH:1,
     canvW:800,canvH:500,dpr:1,
     zoom:1.0,panX:0,panY:0,
@@ -276,10 +490,21 @@ export default function App(){
     {id:"femur_r",     label:t.grpFemR, color:C.femur_r,     slots:[t.slotMedR,t.slotLatR]},
     {id:"femur_l",     label:t.grpFemL, color:C.femur_l,     slots:[t.slotMedL,t.slotLatL]},
   ];
+  const HIP_GROUPS=hope?[
+    {id:"shaft_r",label:t.grpShaftR,color:C.perkins_r,slots:t.slotShaft},
+    {id:"head_r", label:t.grpHeadR, color:C.perkins_r,slots:t.slotHead},
+    {id:"neck_r", label:t.grpNeckR, color:C.perkins_r,slots:t.slotNeck},
+    {id:"phys_r", label:t.grpPhysR, color:C.perkins_r,slots:t.slotPhys},
+    {id:"shaft_l",label:t.grpShaftL,color:C.perkins_l,slots:t.slotShaft},
+    {id:"head_l", label:t.grpHeadL, color:C.perkins_l,slots:t.slotHead},
+    {id:"neck_l", label:t.grpNeckL, color:C.perkins_l,slots:t.slotNeck},
+    {id:"phys_l", label:t.grpPhysL, color:C.perkins_l,slots:t.slotPhys},
+  ]:[];
+  const ALL_GROUPS=[...GROUPS,...HIP_GROUPS];
 
   const [imgEl,    setImgEl]    =useState(null);
   const [step,     setStep]     =useState(0);
-  const [pts,      setPts]      =useState({hilgenreiner:[],perkins_r:[],perkins_l:[],femur_r:[],femur_l:[]});
+  const [pts,      setPts]      =useState(emptyPts);
   const [canvSize, setCanvSize] =useState({w:800,h:500,dpr:1});
   const [results,  setResults]  =useState(null);
   const [aiResults,setAiResults]=useState(null);
@@ -287,6 +512,9 @@ export default function App(){
   const [mode,     setMode]     =useState("annotate");
   const [exportImg,setExportImg]=useState(null);
   const [cropImg,setCropImg]=useState(null);   // image waiting on the crop step
+  const [subjectId,setSubjectId]=useState("");  // HOPE: subject identifier
+  const [fileName,setFileName]=useState("");    // HOPE: name of the loaded radiograph
+  const [hopeFiles,setHopeFiles]=useState(null);// HOPE: files ready to download
 
   useEffect(()=>{ S.current.step=step; },[step]);
   useEffect(()=>{ S.current.pts=pts; },[pts]);
@@ -295,10 +523,19 @@ export default function App(){
   useEffect(()=>{ S.current.zoom=zoom; },[zoom]);
   useEffect(()=>{ S.current.mode=mode; },[mode]);
 
-  const isAnnotating=step>0&&step<STEP_IDS.length-1;
-  const isResult=step===STEP_IDS.length-1;
-  const curGrpId=STEP_IDS[step];
-  const curGrp=GROUPS.find(g=>g.id===curGrpId)||null;
+  const curGrpId=stepIds[step];
+  const isAnnotating=step>0&&!isResultId(curGrpId);
+  const isResult=step>0&&isResultId(curGrpId);
+  const isResult1=curGrpId==="result";
+  const isResult2=curGrpId==="result2";
+  const inHipPhase=HIP_PHASE.has(curGrpId);
+  const curGrp=ALL_GROUPS.find(g=>g.id===curGrpId)||null;
+  // Groups shown in the step bar and hit-tested on the canvas: the current phase only
+  const PHASE_GROUPS=inHipPhase?HIP_GROUPS:GROUPS;
+  S.current.stepIds=stepIds;
+  S.current.groups=PHASE_GROUPS;
+  S.current.allGroups=ALL_GROUPS;
+  const hipRes=hope?calcHip(pts):null;
 
   // Starts annotation on the (cropped/rotated) image
   function startAnnotation(el){
@@ -313,6 +550,8 @@ export default function App(){
 
   function loadFile(file){
     if(!file) return;
+    if(hope&&!subjectId.trim()) return;
+    setFileName(file.name||"");
     const rd=new FileReader();
     rd.onload=ev=>{
       const el=new Image();
@@ -377,6 +616,13 @@ export default function App(){
 
     function toCv(pt){ return {cx:pt.x*bs*z+px,cy:pt.y*bs*z+py}; }
     const sc=bs;
+
+    // HOPE: NSA/HSA phase shows the radiograph again with only its own landmarks
+    if(HIP_PHASE.has((S.current.stepIds||STEP_IDS)[S.current.step])){
+      drawHipOverlay(ctx,p,toCv,bs*z,W,H,(x,y,col,lbl)=>dot(ctx,x,y,col,lbl));
+      if(magPos) drawMag(ctx,magPos,img,W,H,bs);
+      return;
+    }
 
     if(p.hilgenreiner.length===2){
       const a=toCv(p.hilgenreiner[0]),b=toCv(p.hilgenreiner[1]);
@@ -527,7 +773,7 @@ export default function App(){
     const k=W/rect.width;
     const hitR=HIT_R_CSS*k, blockR=PLACE_BLOCK_R_CSS*k;
     let best=null,bestD=hitR;
-    for(const g of GROUPS){
+    for(const g of (S.current.groups||GROUPS)){
       (p[g.id]||[]).forEach((pt,i)=>{
         const cx=pt.x*bs*z+px,cy=pt.y*bs*z+py;
         const dd=dst({x:cx,y:cy},{x:cpx,y:cpy});
@@ -643,9 +889,10 @@ export default function App(){
       const draggedPoint=!!(dragging&&movedEnough);
       const cancelled=e.type==="mouseleave"||e.type==="touchcancel";   // left the canvas: no point
       const isTap=!cancelled&&!blocked&&!draggedPoint&&m==="annotate";
-      if(isTap&&st>0&&st<STEP_IDS.length-1){
-        const gid=STEP_IDS[st];
-        const grp=GROUPS.find(g=>g.id===gid);
+      const ids=S.current.stepIds||STEP_IDS;
+      const gid=ids[st];
+      const grp=(S.current.allGroups||GROUPS).find(g=>g.id===gid);
+      if(isTap&&st>0&&grp&&!isResultId(gid)){
         const cur=p[gid]||[];
         if(cur.length<grp.slots.length){
           const next=[...cur,{x:imgPt.x,y:imgPt.y}];
@@ -709,14 +956,15 @@ export default function App(){
     const cur=pts[curGrpId]||[];
     if(cur.length>0){
       setPts(p=>{const u={...p,[curGrpId]:(p[curGrpId]||[]).slice(0,-1)};S.current.pts=u;return u;});
-    } else if(step>1){
-      const prevId=STEP_IDS[step-1];
+    } else if(step>1&&!isResultId(stepIds[step-1])){
+      const prevId=stepIds[step-1];
       setPts(p=>{const u={...p,[prevId]:(p[prevId]||[]).slice(0,-1)};S.current.pts=u;return u;});
       const ns=step-1;S.current.step=ns;setStep(ns);
     }
   }
   function handleReset(){
-    const e={hilgenreiner:[],perkins_r:[],perkins_l:[],femur_r:[],femur_l:[]};
+    const e=emptyPts();
+    if(hope){ setSubjectId(""); setFileName(""); setHopeFiles(null); }
     Object.assign(S.current,{
       step:0,pts:e,imgEl:null,dragging:null,magPos:null,
       down:false,zoom:1,panX:0,panY:0,mode:"annotate",
@@ -729,7 +977,11 @@ export default function App(){
     if(cv){ const ctx=cv.getContext("2d"); ctx.clearRect(0,0,cv.width,cv.height); }
   }
 
-  function handleExport(){
+  // kind: "reimers" (Reimers + AI) or "hip" (HOPE: NSA + HSA).
+  // onDone(canvas), when given, receives the finished image instead of the
+  // default download + preview (used by the HOPE export).
+  function handleExport(kind="reimers",onDone=null){
+    if(typeof kind!=="string") kind="reimers";
     const{imgEl:img,pts:p}=S.current;
     if(!img) return;
     const res=S.current.lastResults;
@@ -782,6 +1034,9 @@ export default function App(){
       if(lbl){ctx.fillStyle="#000";ctx.font="bold 7px monospace";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(lbl,x,y);}
       ctx.restore();
     }
+    if(kind==="hip"){
+      drawHipOverlay(ctx,p,toCv,sc,W,H,dotE);
+    } else {
     if(p.hilgenreiner.length===2){const[a,b]=[toCv(p.hilgenreiner[0]),toCv(p.hilgenreiner[1])];infLineE(a.cx,a.cy,b.cx,b.cy,C.hilgenreiner);}
     function drawPLExp(arr,col){if(!arr.length||p.hilgenreiner.length<2) return;const ang=Math.atan2(p.hilgenreiner[1].y-p.hilgenreiner[0].y,p.hilgenreiner[1].x-p.hilgenreiner[0].x)+Math.PI/2;arr.forEach(pt=>{const c=toCv(pt);infLineAngE(c.cx,c.cy,ang,col);});}
     drawPLExp(p.perkins_r,C.perkins_r);drawPLExp(p.perkins_l,C.perkins_l);
@@ -811,6 +1066,7 @@ export default function App(){
       if(arr[1]){const c=toCv(arr[1]);dotE(c.cx,c.cy,col,"L");}
     }
     drawFE(p.femur_r,C.femur_r);drawFE(p.femur_l,C.femur_l);
+    }
 
     // ── Panel background: dark gradient matching app ──────────────────────────
     const panelY = H;
@@ -843,7 +1099,7 @@ export default function App(){
     ctx.letterSpacing = "1.5px";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(t.appTitle, W / 2, headerY);
+    ctx.fillText(hope ? `${t.hopeTitle}  ·  ${t.subjectShort.toUpperCase()}: ${subjectId.trim()}` : t.appTitle, W / 2, headerY);
     ctx.restore();
 
     // thin rule below header
@@ -929,6 +1185,7 @@ export default function App(){
       ctx.fillText(unit, valStartX + valMeasure.width + 3, y + ch - 24);
 
       // classification badge pill — centered
+      if(clsLabel){
       ctx.font = `500 11px ${FONT}`;
       const badgeW = ctx.measureText(clsLabel).width + 18;
       const badgeX = centerX - badgeW / 2;
@@ -944,6 +1201,7 @@ export default function App(){
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.fillText(clsLabel, badgeX + 9, badgeY - 3);
+      }
 
       ctx.restore();
     }
@@ -957,6 +1215,16 @@ export default function App(){
       ctx.closePath();
     }
 
+    if(kind==="hip"){
+      // ── HOPE rows: NSA (top) and HSA (bottom) ──────────────────────────────
+      const hr=calcHip(p);
+      const rowA = panelY + HEADER_H + GAP, rowB = rowA + CARD_H + GAP;
+      const val=v=>v!=null?String(v):"–";
+      drawCard(CMARGIN,rowA,cardW,CARD_H,C.perkins_r,t.sideR,val(hr.right.nsa),hr.right.nsa!=null?"°":"","",C.perkins_r,t.nsaCard);
+      drawCard(CMARGIN*2+cardW,rowA,cardW,CARD_H,C.perkins_l,t.sideL,val(hr.left.nsa),hr.left.nsa!=null?"°":"","",C.perkins_l,t.nsaCard);
+      drawCard(CMARGIN,rowB,cardW,CARD_H,C.perkins_r,t.sideR,val(hr.right.hsa),hr.right.hsa!=null?"°":"","",C.perkins_r,t.hsaCard);
+      drawCard(CMARGIN*2+cardW,rowB,cardW,CARD_H,C.perkins_l,t.sideL,val(hr.left.hsa),hr.left.hsa!=null?"°":"","",C.perkins_l,t.hsaCard);
+    } else {
     // ── Row 1: Reimers ────────────────────────────────────────────────────────
     const row1Y = panelY + HEADER_H + GAP;
     const rR = res?.right;
@@ -1002,6 +1270,7 @@ export default function App(){
       aiLeft?.error ? "#f87171" : (aiLeft!=null ? clsAI(aiLeft.value).c : "#555"),
       t.aiTitle
     );
+    }
 
     // ── Footer: Bone Learning SVG logo (small, centred, faded) ──────────────
     const footerY = panelY + HEADER_H + GAP + CARD_H + GAP + CARD_H + GAP;
@@ -1011,6 +1280,7 @@ export default function App(){
 
     // ── Export: draw logo then generate dataURL ───────────────────────────────
     function finishExport(){
+      if(onDone){ onDone(ec); return; }
       const dataUrl = ec.toDataURL("image/png");
       try{
         ec.toBlob(blob=>{
@@ -1034,9 +1304,14 @@ export default function App(){
         im.src=src;
       });
     }
-    Promise.all([loadLogo(BONE_LEARNING_LOGO),loadLogo(FISE_LOGO)]).then(([blLogo,fiseLogo])=>{
+    Promise.all([loadLogo(BONE_LEARNING_LOGO),loadLogo(FISE_LOGO),hope?loadLogo(HOPE_LOGO):Promise.resolve(null)]).then(([blLogo,fiseLogo,hopeLogo])=>{
       const LOGO_GAP=18;
       const items=[];
+      // HOPE logo on its own white tile, full opacity, left of the other logos
+      if(hopeLogo&&hopeLogo.naturalHeight){
+        const th=LOGO_H, tw=Math.round(th*hopeLogo.naturalWidth/hopeLogo.naturalHeight);
+        items.push({hope:true,im:hopeLogo,w:tw+8});
+      }
       if(blLogo) items.push({im:blLogo,w:LOGO_W});
       if(fiseLogo&&fiseLogo.naturalHeight)
         items.push({im:fiseLogo,w:Math.round(LOGO_H*fiseLogo.naturalWidth/fiseLogo.naturalHeight)});
@@ -1045,10 +1320,85 @@ export default function App(){
       const ly=Math.round(footerY+(FOOTER_H-LOGO_H)/2);
       ctx.save();
       ctx.globalAlpha=0.35;
-      items.forEach(it=>{ ctx.drawImage(it.im,lx,ly,it.w,LOGO_H); lx+=it.w+LOGO_GAP; });
+      items.forEach(it=>{
+        if(it.hope){
+          ctx.save();ctx.globalAlpha=1;ctx.fillStyle="#ffffff";
+          ctx.beginPath();roundRect(ctx,lx,ly,it.w,LOGO_H,8);ctx.fill();
+          ctx.drawImage(it.im,lx+4,ly+2,it.w-8,LOGO_H-4);
+          ctx.restore();
+        } else ctx.drawImage(it.im,lx,ly,it.w,LOGO_H);
+        lx+=it.w+LOGO_GAP;
+      });
       ctx.restore();
       finishExport();
     });
+  }
+
+  // ── HOPE export: CSV with every measure + two PNGs ──────────────────────────
+  function canvasBlob(cv){
+    return new Promise(res=>cv.toBlob(b=>res(b),"image/png"));
+  }
+  async function handleHopeExport(){
+    const id=subjectId.trim();
+    if(!id){ alert(t.subjectNeeded); return; }
+    const safe=id.replace(/[^A-Za-z0-9_-]+/g,"_");
+    const p=S.current.pts;
+    const rr=calcReimers(p)||{}, ai=calcAcetabular(p)||{}, hr=calcHip(p);
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,"0");
+    const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const num=v=>(v==null||v.error)?"":String(v);
+    const rIdx=r=>(!r||r.error)?"":String(r.index);
+    const aVal=a=>(!a||a.error)?"":String(a.value);
+    const cell=v=>{ const x=String(v??""); return /[",\n;]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x; };
+    const head=["study","subject_id","measured_at","image_file",
+      "reimers_right_pct","reimers_left_pct","ai_right_deg","ai_left_deg",
+      "nsa_right_deg","nsa_left_deg","hsa_right_deg","hsa_left_deg"];
+    const row=["HOPE",id,stamp,fileName,
+      rIdx(rr.right),rIdx(rr.left),aVal(ai.right),aVal(ai.left),
+      num(hr.right.nsa),num(hr.left.nsa),num(hr.right.hsa),num(hr.left.hsa)];
+    const csv=head.join(",")+"\n"+row.map(cell).join(",")+"\n";
+    const csvBlob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+    const cv1=await new Promise(res=>handleExport("reimers",res));
+    const cv2=await new Promise(res=>handleExport("hip",res));
+    const [b1,b2]=await Promise.all([canvasBlob(cv1),canvasBlob(cv2)]);
+    const files=[
+      {name:`HOPE_${safe}_medidas.csv`,label:t.fileCsv,blob:csvBlob},
+      {name:`HOPE_${safe}_Reimers_IA.png`,label:t.filePng1,blob:b1,img:true},
+      {name:`HOPE_${safe}_NSA_HSA.png`,label:t.filePng2,blob:b2,img:true},
+    ].filter(f=>f.blob).map(f=>({...f,url:URL.createObjectURL(f.blob)}));
+    setHopeFiles(prev=>{ (prev||[]).forEach(f=>URL.revokeObjectURL(f.url)); return files; });
+  }
+  function downloadFile(f){
+    const a=document.createElement("a");a.href=f.url;a.download=f.name;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>document.body.removeChild(a),500);
+  }
+  function downloadAll(){
+    (hopeFiles||[]).forEach((f,i)=>setTimeout(()=>downloadFile(f),i*400));
+  }
+  const canShareFiles=typeof navigator!=="undefined"&&!!navigator.canShare&&(()=>{
+    try{ return navigator.canShare({files:[new File(["x"],"x.csv",{type:"text/csv"})]}); }catch(e){ return false; }
+  })();
+  async function shareAll(){
+    try{
+      const fl=(hopeFiles||[]).map(f=>new File([f.blob],f.name,{type:f.blob.type}));
+      await navigator.share({files:fl,title:`HOPE ${subjectId.trim()}`});
+    }catch(e){}
+  }
+  // Moves to the NSA/HSA phase: first incomplete group, or its result
+  function goHipPhase(){
+    const next=HIP_STEP_IDS.find(id=>{
+      const g=HIP_GROUPS.find(x=>x.id===id);
+      return (pts[id]||[]).length<g.slots.length;
+    });
+    const ns=stepIds.indexOf(next||"result2");
+    S.current.step=ns;setStep(ns);
+    setMode("annotate");S.current.mode="annotate";
+  }
+  function goReimersResult(){
+    const ns=stepIds.indexOf("result");
+    S.current.step=ns;setStep(ns);
   }
 
   const canZoomOut=zoom>ZOOM_MIN+0.01;
@@ -1093,20 +1443,34 @@ export default function App(){
         display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",
         position:"relative",zIndex:10,
       }}>
+        {hope ? (
+          <img src={HOPE_LOGO} alt="HOPE"
+            style={{width:40,height:40,borderRadius:10,flexShrink:0,objectFit:"contain",
+              background:"#fff",padding:"2px 6px",boxSizing:"border-box",
+              border:`0.5px solid ${GL.borderHigh}`}}/>
+        ) : (
         <img src={LOGO_SRC} alt="pelve"
           style={{width:40,height:40,borderRadius:10,flexShrink:0,
             objectFit:"cover",
             filter:"brightness(1.1) drop-shadow(0 0 8px rgba(94,174,255,0.4))",
             border:`0.5px solid ${GL.borderHigh}`,
             background:"rgba(0,0,0,0.4)"}}/>
+        )}
         <div style={{flex:1,minWidth:0}}>
           <div style={{fontSize:16,fontWeight:600,letterSpacing:1.5,color:GL.textPri,lineHeight:1.2}}>
-            {t.appTitle}
+            {hope?t.hopeTitle:t.appTitle}
           </div>
           <div style={{fontSize:10,color:GL.textTer,letterSpacing:0.8,marginTop:2}}>
-            {t.appSubtitle}
+            {hope?t.hopeSubtitle:t.appSubtitle}
           </div>
         </div>
+        {hope && step>0 && subjectId.trim() && (
+          <div style={{...glassStyle({padding:"4px 10px",borderRadius:8,background:GL.glassMid}),
+            fontSize:11,color:GL.textSec,flexShrink:0,maxWidth:180,overflow:"hidden",
+            textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+            {t.subjectShort}: <b style={{color:GL.textPri}}>{subjectId.trim()}</b>
+          </div>
+        )}
         <div style={{display:"flex",gap:4,flexShrink:0}}>
           {["pt","en","es"].map(l=>(
             <button key={l} onClick={()=>setLang(l)}
@@ -1143,8 +1507,9 @@ export default function App(){
           scrollbarWidth:"none",WebkitOverflowScrolling:"touch",
           position:"relative",zIndex:10,
         }}>
-          {GROUPS.map((g,i)=>{
-            const si=i+1,done=step>si,active=step===si;
+          {PHASE_GROUPS.map((g)=>{
+            const si=stepIds.indexOf(g.id),done=step>si,active=step===si;
+            const num=PHASE_GROUPS.indexOf(g)+1;
             return(
               <div key={g.id} style={{
                 padding:"7px 10px",fontSize:11,letterSpacing:0.8,
@@ -1159,7 +1524,7 @@ export default function App(){
                   background:done?g.color+"33":active?g.color+"22":"rgba(255,255,255,0.05)",
                   border:`0.5px solid ${done||active?g.color+"66":"rgba(255,255,255,0.1)"}`,
                 }}>
-                  {done?"✓":si}
+                  {done?"✓":num}
                 </span>
                 {g.label.toUpperCase()}
               </div>
@@ -1184,6 +1549,13 @@ export default function App(){
 
             {/* Logo */}
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
+              {hope ? (
+              <div style={{width:96,height:120,borderRadius:24,background:"#fff",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                boxShadow:"0 0 30px rgba(94,174,255,0.25)",border:`0.5px solid ${GL.borderHigh}`}}>
+                <img src={HOPE_LOGO} alt="HOPE" style={{height:108,width:"auto",objectFit:"contain"}}/>
+              </div>
+              ) : (
               <div style={{
                 width:96,height:96,borderRadius:24,
                 background:"rgba(0,0,0,0.3)",
@@ -1195,22 +1567,35 @@ export default function App(){
                 <img src={LOGO_SRC} alt="pelve"
                   style={{width:80,height:80,objectFit:"contain",mixBlendMode:"screen"}}/>
               </div>
+              )}
               <div style={{textAlign:"center"}}>
                 <div style={{fontSize:18,fontWeight:600,color:GL.textPri,letterSpacing:1.5,marginBottom:4}}>
                   {t.loadTitle}
                 </div>
-                <div style={{fontSize:13,color:GL.textSec,lineHeight:1.7,maxWidth:300}}>
-                  {t.loadDesc}
+                <div style={{fontSize:13,color:GL.textSec,lineHeight:1.7,maxWidth:hope?360:300}}>
+                  {hope?t.hopeLoadDesc:t.loadDesc}
                 </div>
               </div>
             </div>
 
+            {hope && (
+              <label style={{display:"flex",flexDirection:"column",gap:6,width:240}}>
+                <span style={{fontSize:11,color:GL.textSec,letterSpacing:0.8}}>{t.subjectLabel}</span>
+                <input value={subjectId} onChange={e=>setSubjectId(e.target.value)}
+                  placeholder={t.subjectPh} autoComplete="off" autoCapitalize="characters" spellCheck={false}
+                  style={{...glassStyle({borderRadius:GL.radiusSm,padding:"10px 12px",
+                    background:"rgba(255,255,255,0.08)",border:`0.5px solid ${GL.borderHigh}`}),
+                    color:GL.textPri,fontSize:15,fontFamily:"inherit",outline:"none",textAlign:"center"}}/>
+              </label>
+            )}
+
             {/* Drop zone */}
             <div
-              onClick={()=>fileInputRef.current?.click()}
+              onClick={()=>{ if(hope&&!subjectId.trim()) return; fileInputRef.current?.click(); }}
               onDragOver={e=>e.preventDefault()}
               onDrop={e=>{e.preventDefault();loadFile(e.dataTransfer.files[0]);}}
               style={{
+                opacity:(hope&&!subjectId.trim())?0.4:1,
                 ...glassStyle({
                   width:240,height:140,
                   background:"rgba(255,255,255,0.05)",
@@ -1230,7 +1615,9 @@ export default function App(){
                 fontSize:20,
               }}>📁</div>
               <div style={{fontSize:14,fontWeight:500,color:GL.textPri}}>{t.touchDrop}</div>
-              <div style={{fontSize:12,color:GL.textTer}}>{t.fileTypes}</div>
+              <div style={{fontSize:12,color:GL.textTer,textAlign:"center",padding:"0 10px"}}>
+                {(hope&&!subjectId.trim())?t.subjectNeeded:t.fileTypes}
+              </div>
             </div>
 
             <input ref={fileInputRef} type="file" accept="image/*"
@@ -1291,7 +1678,7 @@ export default function App(){
                 }),
                 fontSize:12,color:"rgba(52,211,153,0.9)",
               }}>
-                {t.tipDrag}
+                {isResult2?t.tipDragHip:t.tipDrag}
               </div>
             )}
 
@@ -1356,7 +1743,7 @@ export default function App(){
             </div>
 
             {/* Results */}
-            {isResult && results && (
+            {isResult1 && results && (
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
 
                 {/* Section title */}
@@ -1513,6 +1900,20 @@ export default function App(){
                   </div>
                 )}
 
+                {hope ? (
+                  <>
+                    <div style={{...glassStyle({padding:"8px 12px",borderRadius:GL.radiusSm,
+                      background:"rgba(94,174,255,0.08)",borderLeft:`2px solid ${GL.accent}`}),
+                      fontSize:12,color:GL.textSec,lineHeight:1.5}}>
+                      {t.phase1Done}
+                    </div>
+                    <GlassBtn accent="rgba(94,174,255,0.3)" onClick={goHipPhase}
+                      style={{width:"100%",justifyContent:"center",padding:"12px 16px",fontSize:15,fontWeight:600}}>
+                      {t.btnContinueHip}
+                    </GlassBtn>
+                  </>
+                ) : (
+                  <>
                 <GlassBtn accent="rgba(94,174,255,0.25)" onClick={handleExport}
                   style={{width:"100%",justifyContent:"center",padding:"11px 16px",fontSize:14}}>
                   {t.btnExport}
@@ -1521,11 +1922,58 @@ export default function App(){
                   style={{width:"100%",justifyContent:"center",padding:"11px 16px",fontSize:14}}>
                   {t.btnReset}
                 </GlassBtn>
+                  </>
+                )}
               </div>
+            )}
+
+            {/* HOPE: NSA / HSA result and export */}
+            {isResult2 && hipRes && (
+              <HopeResults t={t} hipRes={hipRes} pts={pts} subjectId={subjectId} setSubjectId={setSubjectId}
+                onBack={goReimersResult} onExport={handleHopeExport} onReset={handleReset}/>
             )}
           </div>
         )}
       </main>
+
+      {/* ── HOPE files modal ── */}
+      {hopeFiles && (
+        <div onClick={()=>setHopeFiles(null)}
+          style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",
+            backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",
+            display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:16,overflowY:"auto"}}>
+          <div onClick={e=>e.stopPropagation()}
+            style={{...glassStyle({padding:16,background:"rgba(13,22,40,0.92)"}),
+              width:"100%",maxWidth:560,display:"flex",flexDirection:"column",gap:12,maxHeight:"100%",overflowY:"auto"}}>
+            <div style={{fontSize:13,fontWeight:600,letterSpacing:1,color:GL.textPri}}>
+              {t.exportTitle} · {subjectId.trim()}
+            </div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {hopeFiles.filter(f=>f.img).map(f=>(
+                <img key={f.name} src={f.url} alt={f.label}
+                  style={{flex:"1 1 200px",minWidth:0,maxWidth:"100%",maxHeight:"42vh",objectFit:"contain",
+                    borderRadius:GL.radiusSm,border:`0.5px solid ${GL.border}`}}/>
+              ))}
+            </div>
+            <div style={{fontSize:11,color:GL.textTer}}>{t.exportIOS}</div>
+            {hopeFiles.map(f=>(
+              <GlassBtn key={f.name} onClick={()=>downloadFile(f)}
+                style={{width:"100%",justifyContent:"space-between",padding:"10px 14px"}}>
+                <span>{f.label}</span>
+                <span style={{fontSize:11,color:GL.textTer,fontFamily:"monospace"}}>{f.name}</span>
+              </GlassBtn>
+            ))}
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              <GlassBtn accent="rgba(94,174,255,0.3)" onClick={downloadAll}
+                style={{flex:1,justifyContent:"center",fontWeight:600}}>{t.dlAll}</GlassBtn>
+              {canShareFiles && (
+                <GlassBtn onClick={shareAll} style={{flex:1,justifyContent:"center"}}>{t.dlShare}</GlassBtn>
+              )}
+              <GlassBtn onClick={()=>setHopeFiles(null)} style={{justifyContent:"center"}}>{t.dlClose}</GlassBtn>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Export modal ── */}
       {exportImg && (
@@ -1548,6 +1996,95 @@ export default function App(){
               boxShadow:"0 0 60px rgba(0,0,0,0.6)"}}/>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── HOPE result panel ────────────────────────────────────────────────────────
+function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onReset}){
+  const rr=calcReimers(pts)||{}, ai=calcAcetabular(pts)||{};
+  const sides=[{side:t.sideR,key:"right",col:C.perkins_r},{side:t.sideL,key:"left",col:C.perkins_l}];
+  function card(title,field){
+    return(
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        <div style={{fontSize:10,color:GL.textTer,letterSpacing:2,padding:"0 2px",marginTop:4}}>{title}</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {sides.map(({side,key,col})=>{
+            const v=hipRes[key][field];
+            return(
+              <div key={key} style={{flex:"1 1 130px",...glassStyle({padding:"12px 16px",
+                background:"rgba(255,255,255,0.05)",borderTop:`2px solid ${col}`,
+                boxShadow:`0 4px 24px rgba(0,0,0,0.25), inset 0 0 20px ${col}08`})}}>
+                <div style={{fontSize:10,letterSpacing:1.5,color:`${col}cc`,marginBottom:4}}>{side}</div>
+                <div style={{fontSize:36,fontWeight:700,color:v!=null?col:GL.textTer,lineHeight:1,
+                  textShadow:v!=null?`0 0 16px ${col}55`:"none"}}>
+                  {v!=null?v:"–"}<span style={{fontSize:13,fontWeight:400,color:GL.textTer}}>{v!=null?"°":""}</span>
+                </div>
+                {v==null && <div style={{fontSize:11,color:GL.textTer,marginTop:4}}>{t.hipIncomplete}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+  const fmt=(v,u)=>v==null?"–":v+u;
+  const rI=r=>(!r||r.error)?null:r.index, aV=a=>(!a||a.error)?null:a.value;
+  const rows=[
+    [t.reimersTitle,fmt(rI(rr.right),"%"),fmt(rI(rr.left),"%")],
+    [t.aiTitle,fmt(aV(ai.right),"°"),fmt(aV(ai.left),"°")],
+    ["NSA",fmt(hipRes.right.nsa,"°"),fmt(hipRes.left.nsa,"°")],
+    ["HSA",fmt(hipRes.right.hsa,"°"),fmt(hipRes.left.hsa,"°")],
+  ];
+  const cellS={padding:"7px 10px",fontSize:12,borderTop:`0.5px solid ${GL.border}`};
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      {card(t.nsaTitle,"nsa")}
+      {card(t.hsaTitle,"hsa")}
+
+      <div style={{fontSize:10,color:GL.textTer,letterSpacing:2,padding:"0 2px",marginTop:6}}>{t.summaryTitle}</div>
+      <div style={{...glassStyle({padding:0,overflow:"hidden",background:"rgba(0,0,0,0.2)"})}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontVariantNumeric:"tabular-nums"}}>
+          <thead>
+            <tr style={{color:GL.textTer,fontSize:11,textAlign:"left"}}>
+              <th style={{padding:"7px 10px",fontWeight:500}}>{t.colMeasure}</th>
+              <th style={{padding:"7px 10px",fontWeight:500,color:C.perkins_r}}>{t.colRight}</th>
+              <th style={{padding:"7px 10px",fontWeight:500,color:C.perkins_l}}>{t.colLeft}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r=>(
+              <tr key={r[0]}>
+                <td style={{...cellS,color:GL.textSec}}>{r[0]}</td>
+                <td style={{...cellS,color:GL.textPri,fontWeight:600}}>{r[1]}</td>
+                <td style={{...cellS,color:GL.textPri,fontWeight:600}}>{r[2]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <label style={{display:"flex",alignItems:"center",gap:8,marginTop:4,...glassStyle({padding:"8px 12px",borderRadius:GL.radiusSm})}}>
+        <span style={{fontSize:12,color:GL.textSec,whiteSpace:"nowrap"}}>{t.subjectLabel}</span>
+        <input value={subjectId} onChange={e=>setSubjectId(e.target.value)} placeholder={t.subjectPh}
+          autoComplete="off" spellCheck={false}
+          style={{flex:1,minWidth:0,background:"transparent",border:"none",outline:"none",
+            color:GL.textPri,fontSize:14,fontWeight:600,fontFamily:"inherit"}}/>
+      </label>
+
+      <GlassBtn accent="rgba(94,174,255,0.3)" onClick={onExport}
+        style={{width:"100%",justifyContent:"center",padding:"12px 16px",fontSize:15,fontWeight:600,
+          opacity:subjectId.trim()?1:0.5}}>
+        {t.btnExportHope}
+      </GlassBtn>
+      <div style={{display:"flex",gap:8}}>
+        <GlassBtn onClick={onBack} style={{flex:1,justifyContent:"center",padding:"10px 12px"}}>
+          {t.btnBackReimers}
+        </GlassBtn>
+        <GlassBtn accent="rgba(52,211,153,0.2)" onClick={onReset} style={{flex:1,justifyContent:"center",padding:"10px 12px"}}>
+          {t.btnReset}
+        </GlassBtn>
+      </div>
     </div>
   );
 }
