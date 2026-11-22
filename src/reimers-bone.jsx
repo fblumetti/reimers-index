@@ -6,6 +6,7 @@ import HOPE_LOGO from "./assets/hope-logo.png";
 const TRANSLATIONS = {
   pt: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PERCENTUAL DE MIGRAÇÃO DO FÊMUR PROXIMAL",
+    uiTitle:"Índice de Reimers",uiSubtitle:"Percentual de Migração do Fêmur Proximal",uiHopeTitle:"Estudo HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Recortar e alinhar",btnNext:"Próximo",errLabel:"Erro",
     loadTitle:"Carregar Radiografia",loadDesc:"Selecione uma radiografia de bacia AP para medir o índice de migração de Reimers.",
     touchDrop:"Toque ou arraste",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins E",grpFemR:"Fêmur D",grpFemL:"Fêmur E",
@@ -49,6 +50,7 @@ const TRANSLATIONS = {
   },
   en: {
     appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
+    uiTitle:"Reimers Index",uiSubtitle:"Proximal Femoral Migration Percentage",uiHopeTitle:"HOPE Study",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Crop & straighten",btnNext:"Next",errLabel:"Error",
     loadTitle:"Load Radiograph",loadDesc:"Select an AP pelvis radiograph to measure the Reimers migration index.",
     touchDrop:"Tap or drag",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins R",grpPerkL:"Perkins L",grpFemR:"Femur R",grpFemL:"Femur L",
@@ -92,6 +94,7 @@ const TRANSLATIONS = {
   },
   es: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
+    uiTitle:"Índice de Reimers",uiSubtitle:"Porcentaje de Migración Femoral Proximal",uiHopeTitle:"Estudio HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Recortar y alinear",btnNext:"Siguiente",errLabel:"Error",
     loadTitle:"Cargar Radiografía",loadDesc:"Seleccione una radiografía de pelvis AP para medir el índice de migración de Reimers.",
     touchDrop:"Toque o arrastre",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins I",grpFemR:"Fémur D",grpFemL:"Fémur I",
@@ -192,13 +195,34 @@ const GL = {
   blurLight:  "blur(12px) saturate(160%)",
   accent:     "#5eaeff",
   accentGlow: "rgba(94,174,255,0.35)",
-  textPri:    "rgba(255,255,255,0.92)",
-  textSec:    "rgba(255,255,255,0.55)",
-  textTer:    "rgba(255,255,255,0.32)",
-  radius:     "16px",
-  radiusSm:   "10px",
-  radiusXs:   "7px",
+  // iOS dark-mode label colours (label / secondaryLabel / tertiaryLabel)
+  textPri:    "rgba(255,255,255,0.96)",
+  textSec:    "rgba(235,235,245,0.62)",
+  textTer:    "rgba(235,235,245,0.36)",
+  radius:     "18px",
+  radiusSm:   "12px",
+  radiusXs:   "8px",
 };
+
+// iOS system font stack (SF Pro on Apple devices) and the iOS Dynamic Type
+// scale at the default "Large" size, with SF's built-in tracking values.
+const FONT_UI = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif";
+const TY = {
+  title1:   {fontSize:28,fontWeight:700,letterSpacing:0.36,lineHeight:"34px"},
+  title2:   {fontSize:22,fontWeight:700,letterSpacing:-0.26,lineHeight:"28px"},
+  title3:   {fontSize:20,fontWeight:600,letterSpacing:-0.45,lineHeight:"25px"},
+  headline: {fontSize:17,fontWeight:600,letterSpacing:-0.43,lineHeight:"22px"},
+  body:     {fontSize:17,fontWeight:400,letterSpacing:-0.43,lineHeight:"22px"},
+  callout:  {fontSize:16,fontWeight:400,letterSpacing:-0.31,lineHeight:"21px"},
+  subhead:  {fontSize:15,fontWeight:400,letterSpacing:-0.23,lineHeight:"20px"},
+  footnote: {fontSize:13,fontWeight:400,letterSpacing:-0.08,lineHeight:"18px"},
+  caption1: {fontSize:12,fontWeight:400,letterSpacing:0,lineHeight:"16px"},
+  caption2: {fontSize:11,fontWeight:400,letterSpacing:0.06,lineHeight:"13px"},
+  // grouped-list section header (uppercase footnote)
+  section:  {fontSize:13,fontWeight:400,letterSpacing:0.2,lineHeight:"18px",textTransform:"uppercase"},
+};
+// 4-pt spacing grid; 16 pt is the iOS standard content margin
+const SP = {xs:4, sm:8, md:12, lg:16, xl:20, xxl:24};
 
 // Shared glass panel style
 function glassStyle(extra={}){
@@ -468,6 +492,7 @@ export default function App({variant}={}){
   const canvasRef=useRef(null);
   const wrapRef=useRef(null);
   const fileInputRef=useRef(null);
+  const stepBarRef=useRef(null);
 
   const S=useRef({
     step:0,
@@ -480,7 +505,7 @@ export default function App({variant}={}){
     mode:"annotate",
   });
 
-  const [lang,setLang]=useState(detectLang);
+  const [lang,setLang]=useState(()=>hope?"pt":detectLang());
   const t=TRANSLATIONS[lang]||TRANSLATIONS.pt;
 
   const GROUPS=[
@@ -517,6 +542,11 @@ export default function App({variant}={}){
   const [hopeFiles,setHopeFiles]=useState(null);// HOPE: files ready to download
 
   useEffect(()=>{ S.current.step=step; },[step]);
+  // keep the active step visible in the horizontally scrolling step bar
+  useEffect(()=>{
+    const bar=stepBarRef.current, el=bar?.querySelector('[data-active="1"]');
+    if(bar&&el) bar.scrollTo({left:el.offsetLeft-(bar.clientWidth-el.offsetWidth)/2,behavior:"smooth"});
+  },[step]);
   useEffect(()=>{ S.current.pts=pts; },[pts]);
   useEffect(()=>{ S.current.imgEl=imgEl; },[imgEl]);
   useEffect(()=>{ S.current.canvW=canvSize.w; S.current.canvH=canvSize.h; S.current.dpr=canvSize.dpr||1; },[canvSize]);
@@ -1420,7 +1450,9 @@ export default function App({variant}={}){
       height:"100%",
       background:GL.bg,
       color:GL.textPri,
-      fontFamily:"-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif",
+      fontFamily:FONT_UI,
+      WebkitFontSmoothing:"antialiased",MozOsxFontSmoothing:"grayscale",
+      textRendering:"optimizeLegibility",
       display:"flex",flexDirection:"column",overflow:"hidden",
       position:"relative",
     }}>
@@ -1441,8 +1473,8 @@ export default function App({variant}={}){
       <header style={{
         ...glassStyle({borderRadius:0,borderTop:"none",borderLeft:"none",borderRight:"none",
           borderBottom:`0.5px solid ${GL.border}`}),
-        padding:"12px 16px",flexShrink:0,
-        display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",
+        padding:`10px ${SP.lg}px`,flexShrink:0,minHeight:60,boxSizing:"border-box",
+        display:"flex",alignItems:"center",gap:SP.md,flexWrap:"wrap",
         position:"relative",zIndex:10,
       }}>
         {hope ? (
@@ -1458,54 +1490,63 @@ export default function App({variant}={}){
             border:`0.5px solid ${GL.borderHigh}`,
             background:"rgba(0,0,0,0.4)"}}/>
         )}
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:16,fontWeight:600,letterSpacing:1.5,color:GL.textPri,lineHeight:1.2}}>
-            {hope?t.hopeTitle:t.appTitle}
+        <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:1}}>
+          <div style={{...TY.headline,color:GL.textPri}}>
+            {hope?t.uiHopeTitle:t.uiTitle}
           </div>
-          <div style={{fontSize:10,color:GL.textTer,letterSpacing:0.8,marginTop:2}}>
-            {hope?t.hopeSubtitle:t.appSubtitle}
+          <div style={{...TY.caption1,color:GL.textSec}}>
+            {hope?t.uiHopeSubtitle:t.uiSubtitle}
           </div>
         </div>
         {hope && step>0 && subjectId.trim() && (
-          <div style={{...glassStyle({padding:"4px 10px",borderRadius:8,background:GL.glassMid}),
-            fontSize:11,color:GL.textSec,flexShrink:0,maxWidth:180,overflow:"hidden",
+          <div style={{...glassStyle({padding:"4px 10px",borderRadius:999,background:GL.glassMid}),
+            ...TY.caption1,color:GL.textSec,flexShrink:0,maxWidth:180,overflow:"hidden",
             textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-            {t.subjectShort}: <b style={{color:GL.textPri}}>{subjectId.trim()}</b>
+            {t.subjectShort}: <b style={{color:GL.textPri,fontWeight:600}}>{subjectId.trim()}</b>
           </div>
         )}
-        <div style={{display:"flex",gap:4,flexShrink:0}}>
-          {["pt","en","es"].map(l=>(
-            <button key={l} onClick={()=>setLang(l)}
-              style={{
-                padding:"4px 9px",fontSize:11,fontWeight:lang===l?600:400,
-                border:`0.5px solid ${lang===l?GL.borderHigh:GL.border}`,
-                borderRadius:8,
-                background:lang===l?GL.glassMid:GL.glass,
-                backdropFilter:GL.blurLight,WebkitBackdropFilter:GL.blurLight,
-                color:lang===l?GL.textPri:GL.textTer,
-                cursor:"pointer",fontFamily:"inherit",letterSpacing:0.5,
-                WebkitTapHighlightColor:"transparent",
-                transition:"all 0.2s",
-              }}>
-              {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
+        {/* Language: compact pop-up button (native picker on iPhone). HOPE is Portuguese only. */}
+        {!hope && (
+        <label style={{position:"relative",flexShrink:0,display:"flex",alignItems:"center",
+          height:32,padding:"0 26px 0 12px",borderRadius:999,
+          background:"rgba(118,118,128,0.24)",border:`0.5px solid ${GL.border}`,
+          ...TY.footnote,fontWeight:600,color:GL.textPri,cursor:"pointer"}}>
+          {lang.toUpperCase()}
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"
+            style={{position:"absolute",right:11,top:11,opacity:0.7}}>
+            <path d="M1.5 3.5L5 7l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6"
+              strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <select value={lang} onChange={e=>setLang(e.target.value)} aria-label="Idioma / Language / Idioma"
+            style={{position:"absolute",inset:0,opacity:0,width:"100%",height:"100%",
+              cursor:"pointer",fontSize:16,border:"none"}}>
+            <option value="pt">Português</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        )}
         {step>0 && (
-          <GlassBtn onClick={handleReset} accent="rgba(255,100,100,0.5)">
+          <button onClick={handleReset} aria-label={t.btnReset}
+            style={{width:32,height:32,borderRadius:"50%",flexShrink:0,
+              display:"flex",alignItems:"center",justifyContent:"center",
+              background:"rgba(255,100,100,0.28)",border:`0.5px solid ${GL.borderHigh}`,
+              backdropFilter:GL.blurLight,WebkitBackdropFilter:GL.blurLight,
+              color:GL.textPri,fontSize:17,fontWeight:600,lineHeight:1,cursor:"pointer",
+              fontFamily:"inherit",WebkitTapHighlightColor:"transparent",padding:0}}>
             ↺
-          </GlassBtn>
+          </button>
         )}
       </header>
 
       {/* ── Step bar ── */}
       {step>0 && (
-        <div style={{
+        <div ref={stepBarRef} style={{
           display:"flex",overflowX:"auto",
           borderBottom:`0.5px solid ${GL.border}`,
           background:"rgba(0,0,0,0.15)",
           backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",
-          padding:"0 6px",flexShrink:0,
+          padding:`0 ${SP.sm}px`,flexShrink:0,
           scrollbarWidth:"none",WebkitOverflowScrolling:"touch",
           position:"relative",zIndex:10,
         }}>
@@ -1513,22 +1554,24 @@ export default function App({variant}={}){
             const si=stepIds.indexOf(g.id),done=step>si,active=step===si;
             const num=PHASE_GROUPS.indexOf(g)+1;
             return(
-              <div key={g.id} style={{
-                padding:"7px 10px",fontSize:11,letterSpacing:0.8,
-                whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:5,flexShrink:0,
+              <div key={g.id} data-active={active?"1":undefined} style={{
+                padding:"10px 8px 8px",...TY.footnote,fontWeight:active?600:500,
+                whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:6,flexShrink:0,
                 borderBottom:active?`2px solid ${g.color}`:done?`2px solid ${g.color}44`:"2px solid transparent",
-                color:active?g.color:done?"rgba(255,255,255,0.4)":"rgba(255,255,255,0.2)",
+                color:active?g.color:done?GL.textSec:GL.textTer,
                 transition:"all 0.2s",
               }}>
                 <span style={{
-                  width:16,height:16,borderRadius:"50%",display:"flex",
-                  alignItems:"center",justifyContent:"center",fontSize:10,flexShrink:0,
+                  width:18,height:18,borderRadius:"50%",display:"flex",
+                  alignItems:"center",justifyContent:"center",
+                  fontSize:11,fontWeight:600,lineHeight:1,flexShrink:0,
+                  fontVariantNumeric:"tabular-nums",
                   background:done?g.color+"33":active?g.color+"22":"rgba(255,255,255,0.05)",
                   border:`0.5px solid ${done||active?g.color+"66":"rgba(255,255,255,0.1)"}`,
                 }}>
                   {done?"✓":num}
                 </span>
-                {g.label.toUpperCase()}
+                {g.label}
               </div>
             );
           })}
@@ -1536,8 +1579,8 @@ export default function App({variant}={}){
       )}
 
       {/* ── Main ── */}
-      <main style={{flex:1,overflowY:"auto",padding:"10px 10px 20px",
-        display:"flex",flexDirection:"column",gap:8,
+      <main style={{flex:1,overflowY:"auto",padding:`${SP.md}px ${SP.lg}px ${SP.xxl}px`,
+        display:"flex",flexDirection:"column",gap:SP.md,
         WebkitOverflowScrolling:"touch",position:"relative",zIndex:1}}>
 
         {/* ── Upload screen ── */}
@@ -1547,10 +1590,10 @@ export default function App({variant}={}){
 
         {step===0 && !cropImg && (
           <div style={{margin:"auto 0",display:"flex",flexDirection:"column",
-            alignItems:"center",gap:20,paddingTop:24,paddingBottom:24}}>
+            alignItems:"center",gap:SP.xxl,paddingTop:SP.xxl,paddingBottom:SP.xxl}}>
 
             {/* Logo */}
-            <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:SP.xl}}>
               {hope ? (
               <div style={{width:96,height:120,borderRadius:24,background:"#fff",
                 display:"flex",alignItems:"center",justifyContent:"center",
@@ -1570,24 +1613,24 @@ export default function App({variant}={}){
                   style={{width:80,height:80,objectFit:"contain",mixBlendMode:"screen"}}/>
               </div>
               )}
-              <div style={{textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:600,color:GL.textPri,letterSpacing:1.5,marginBottom:4}}>
+              <div style={{textAlign:"center",display:"flex",flexDirection:"column",gap:SP.sm,alignItems:"center"}}>
+                <div style={{...TY.title2,color:GL.textPri}}>
                   {t.loadTitle}
                 </div>
-                <div style={{fontSize:13,color:GL.textSec,lineHeight:1.7,maxWidth:hope?360:300}}>
+                <div style={{...TY.subhead,color:GL.textSec,maxWidth:hope?360:310}}>
                   {hope?t.hopeLoadDesc:t.loadDesc}
                 </div>
               </div>
             </div>
 
             {hope && (
-              <label style={{display:"flex",flexDirection:"column",gap:6,width:240}}>
-                <span style={{fontSize:11,color:GL.textSec,letterSpacing:0.8}}>{t.subjectLabel}</span>
+              <label style={{display:"flex",flexDirection:"column",gap:SP.sm,width:280}}>
+                <span style={{...TY.section,color:GL.textSec,textAlign:"center"}}>{t.subjectLabel}</span>
                 <input value={subjectId} onChange={e=>setSubjectId(e.target.value)}
                   placeholder={t.subjectPh} autoComplete="off" autoCapitalize="characters" spellCheck={false}
-                  style={{...glassStyle({borderRadius:GL.radiusSm,padding:"10px 12px",
+                  style={{...glassStyle({borderRadius:GL.radiusSm,padding:`0 ${SP.lg}px`,height:48,boxSizing:"border-box",
                     background:"rgba(255,255,255,0.08)",border:`0.5px solid ${GL.borderHigh}`}),
-                    color:GL.textPri,fontSize:15,fontFamily:"inherit",outline:"none",textAlign:"center"}}/>
+                    ...TY.body,color:GL.textPri,fontFamily:"inherit",outline:"none",textAlign:"center"}}/>
               </label>
             )}
 
@@ -1599,25 +1642,35 @@ export default function App({variant}={}){
               style={{
                 opacity:(hope&&!subjectId.trim())?0.4:1,
                 ...glassStyle({
-                  width:240,height:140,
-                  background:"rgba(255,255,255,0.05)",
-                  border:`1.5px dashed ${GL.border}`,
+                  width:280,minHeight:156,boxSizing:"border-box",padding:`${SP.xl}px ${SP.lg}px`,
+                  borderRadius:22,
+                  background:"rgba(94,174,255,0.06)",
+                  border:`1.5px dashed rgba(94,174,255,0.35)`,
                   display:"flex",flexDirection:"column",
-                  alignItems:"center",justifyContent:"center",gap:8,
+                  alignItems:"center",justifyContent:"center",gap:SP.xs,
                   cursor:"pointer",
-                  boxShadow:"inset 0 0 30px rgba(94,174,255,0.04)",
+                  boxShadow:"inset 0 0 30px rgba(94,174,255,0.05)",
                 }),
                 transition:"all 0.2s",
               }}>
               <div style={{
-                width:44,height:44,borderRadius:12,
-                background:"rgba(94,174,255,0.15)",
-                border:`0.5px solid rgba(94,174,255,0.3)`,
+                width:48,height:48,borderRadius:14,marginBottom:SP.sm,
+                background:"rgba(94,174,255,0.18)",
+                border:`0.5px solid rgba(94,174,255,0.35)`,
                 display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:20,
-              }}>📁</div>
-              <div style={{fontSize:14,fontWeight:500,color:GL.textPri}}>{t.touchDrop}</div>
-              <div style={{fontSize:12,color:GL.textTer,textAlign:"center",padding:"0 10px"}}>
+                color:GL.accent,
+              }}>
+                {/* SF Symbols-style "photo.badge.plus" glyph */}
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="5" width="15" height="14" rx="3"/>
+                  <circle cx="8.5" cy="10" r="1.6"/>
+                  <path d="M3.5 17l4.5-4.5 3.5 3.5 2.5-2.5 4 4"/>
+                  <path d="M20 2.5v5M17.5 5h5"/>
+                </svg>
+              </div>
+              <div style={{...TY.headline,color:GL.textPri}}>{t.touchDrop}</div>
+              <div style={{...TY.footnote,color:GL.textSec,textAlign:"center"}}>
                 {(hope&&!subjectId.trim())?t.subjectNeeded:t.fileTypes}
               </div>
             </div>
@@ -1626,8 +1679,8 @@ export default function App({variant}={}){
               style={{display:"none"}}
               onChange={e=>{if(e.target.files[0])loadFile(e.target.files[0]);e.target.value="";}}/>
 
-            <div style={{opacity:0.4,marginTop:4,display:"flex",
-              alignItems:"center",justifyContent:"center",gap:22}}>
+            <div style={{opacity:0.4,marginTop:SP.sm,display:"flex",
+              alignItems:"center",justifyContent:"center",gap:SP.xxl}}>
               <img src={BONE_LEARNING_LOGO} alt="Bone Learning"
                 style={{height:78,width:"auto",objectFit:"contain",
                   filter:"drop-shadow(0 0 4px rgba(94,174,255,0.2))"}}/>
@@ -1640,31 +1693,30 @@ export default function App({variant}={}){
 
         {/* ── Annotation + Result ── */}
         {(isAnnotating||isResult) && (
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <div style={{display:"flex",flexDirection:"column",gap:SP.md}}>
 
             {/* Instruction bar */}
             {isAnnotating && (
               <div style={{
                 ...glassStyle({
-                  padding:"10px 14px",
+                  padding:`${SP.md}px ${SP.lg}px`,minHeight:52,boxSizing:"border-box",
                   background:groupGlowColor(curGrp?.color||"#fff"),
-                  borderLeft:`2px solid ${curGrp?.color||GL.accent}`,
+                  borderLeft:`3px solid ${curGrp?.color||GL.accent}`,
                   borderRadius:GL.radiusSm,
                 }),
-                display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,
+                display:"flex",justifyContent:"space-between",alignItems:"center",gap:SP.md,
               }}>
-                <div style={{minWidth:0,flex:1}}>
-                  <span style={{fontWeight:600,fontSize:13,color:curGrp?.color||GL.textPri}}>
-                    {curGrp?.label.toUpperCase()}
+                <div style={{minWidth:0,flex:1,display:"flex",flexDirection:"column",gap:2}}>
+                  <span style={{...TY.subhead,fontWeight:600,color:curGrp?.color||GL.textPri}}>
+                    {curGrp?.label}
                   </span>
-                  <span style={{color:GL.textTer,margin:"0 6px"}}>→</span>
-                  <span style={{fontSize:13,color:GL.textSec}}>{stepInstruction()}</span>
+                  <span style={{...TY.footnote,color:GL.textSec}}>{stepInstruction()}</span>
                 </div>
                 {(pts[curGrpId]?.length||0)>=(curGrp?.slots.length||0) && (
                   <GlassBtn accent={GL.accentGlow} onClick={()=>{
                     const ns=step+1;S.current.step=ns;setStep(ns);
-                  }}>
-                    Próximo →
+                  }} style={{fontWeight:600}}>
+                    {t.btnNext} →
                   </GlassBtn>
                 )}
               </div>
@@ -1673,23 +1725,23 @@ export default function App({variant}={}){
             {isResult && (
               <div style={{
                 ...glassStyle({
-                  padding:"8px 12px",
+                  padding:`10px ${SP.lg}px`,
                   background:"rgba(52,211,153,0.08)",
-                  borderLeft:"2px solid rgba(52,211,153,0.5)",
+                  borderLeft:"3px solid rgba(52,211,153,0.5)",
                   borderRadius:GL.radiusSm,
                 }),
-                fontSize:12,color:"rgba(52,211,153,0.9)",
+                ...TY.footnote,color:"rgba(52,211,153,0.95)",
               }}>
                 {isResult2?t.tipDragHip:t.tipDrag}
               </div>
             )}
 
             {/* Toolbar */}
-            <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:SP.sm,flexWrap:"wrap"}}>
               {/* Mode toggle */}
               <div style={{
-                ...glassStyle({borderRadius:GL.radiusSm,padding:3}),
-                display:"flex",flexShrink:0,
+                ...glassStyle({borderRadius:GL.radiusSm,padding:2}),
+                display:"flex",flexShrink:0,gap:2,
               }}>
                 <GlassModeBtn active={mode==="annotate"} onClick={()=>{setMode("annotate");S.current.mode="annotate";}}>
                   {t.modeAnnotate}
@@ -1706,11 +1758,11 @@ export default function App({variant}={}){
               }}>
                 <GlassIconBtn onClick={zoomOut} disabled={!canZoomOut}>−</GlassIconBtn>
                 <div style={{
-                  padding:"0 10px",fontSize:12,color:GL.textSec,
+                  padding:"0 8px",...TY.footnote,fontWeight:500,color:GL.textSec,
                   borderLeft:`0.5px solid ${GL.border}`,borderRight:`0.5px solid ${GL.border}`,
-                  height:32,display:"flex",alignItems:"center",
-                  minWidth:44,justifyContent:"center",
-                  fontVariantNumeric:"tabular-nums",fontWeight:500,
+                  height:36,display:"flex",alignItems:"center",
+                  minWidth:48,justifyContent:"center",
+                  fontVariantNumeric:"tabular-nums",
                 }}>
                   {Math.round(zoom*100)}%
                 </div>
@@ -1723,9 +1775,6 @@ export default function App({variant}={}){
                   {t.btnUndo}
                 </GlassBtn>
               )}
-              <div style={{fontSize:11,color:GL.textTer,marginLeft:"auto"}}>
-                {mode==="pan"?t.hintPan:t.hintAnnotate}
-              </div>
             </div>
 
             {/* Canvas */}
@@ -1744,17 +1793,23 @@ export default function App({variant}={}){
                   cursor:mode==="pan"?"grab":isAnnotating?"crosshair":"default"}}/>
             </div>
 
+            {!isResult && (
+              <div style={{...TY.footnote,color:GL.textTer,textAlign:"center",marginTop:-SP.xs}}>
+                {mode==="pan"?t.hintPan:t.hintAnnotate}
+              </div>
+            )}
+
             {/* Results */}
             {isResult1 && results && (
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <div style={{display:"flex",flexDirection:"column",gap:SP.sm}}>
 
                 {/* Section title */}
-                <div style={{fontSize:10,color:GL.textTer,letterSpacing:2,padding:"0 2px",marginTop:4}}>
+                <div style={{...TY.section,color:GL.textSec,padding:`0 ${SP.lg}px`,marginTop:SP.sm}}>
                   {t.reimersTitle}
                 </div>
 
                 {/* Reimers cards */}
-                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
                   {[{side:t.sideR,key:"right",col:C.perkins_r},{side:t.sideL,key:"left",col:C.perkins_l}].map(({side,key,col})=>{
                     const r=results[key];if(!r) return null;
                     const hasErr=!!r.error;
@@ -1764,35 +1819,35 @@ export default function App({variant}={}){
                       <div key={key} style={{
                         flex:"1 1 140px",
                         ...glassStyle({
-                          padding:"14px 16px",
+                          padding:`14px ${SP.lg}px ${SP.lg}px`,
                           background:`rgba(255,255,255,0.06)`,
                           borderTop:`2px solid ${hasErr?"#f87171":col}`,
                           boxShadow:`0 4px 24px rgba(0,0,0,0.3), inset 0 0 20px ${col}08`,
                         }),
                       }}>
-                        <div style={{fontSize:10,letterSpacing:1.5,color:`${col}cc`,marginBottom:4}}>
+                        <div style={{...TY.caption1,fontWeight:600,letterSpacing:0.3,color:col,marginBottom:6}}>
                           {t.femur} {side}
                         </div>
                         {hasErr ? (
                           <>
-                            <div style={{fontSize:22,fontWeight:700,color:"#f87171",lineHeight:1.2,marginBottom:6}}>
-                              Erro
+                            <div style={{...TY.title2,color:"#f87171",marginBottom:SP.sm}}>
+                              {t.errLabel}
                             </div>
                             <div style={{
-                              fontSize:11,color:"#f87171",lineHeight:1.5,
+                              ...TY.caption1,color:"#f87171",
                               background:"rgba(248,113,113,0.1)",border:"0.5px solid rgba(248,113,113,0.3)",
                               borderRadius:8,padding:"5px 8px",
                             }}>{errMsg}</div>
                           </>
                         ) : (
                           <>
-                            <div style={{fontSize:42,fontWeight:700,color:cls.col,lineHeight:1,marginBottom:2,
+                            <div style={{fontSize:44,fontWeight:700,letterSpacing:-0.6,fontVariantNumeric:"tabular-nums",color:cls.col,lineHeight:1,marginBottom:SP.sm,
                               textShadow:`0 0 20px ${cls.col}66`}}>
-                              {r.index}<span style={{fontSize:14,fontWeight:400,color:GL.textTer}}>%</span>
+                              {r.index}<span style={{fontSize:20,fontWeight:500,letterSpacing:0,color:GL.textSec,marginLeft:2}}>%</span>
                             </div>
                             <div style={{
                               display:"inline-block",
-                              fontSize:11,padding:"2px 10px",borderRadius:20,marginBottom:10,
+                              ...TY.caption1,fontWeight:600,padding:"3px 10px",borderRadius:999,marginBottom:SP.md,
                               background:`${cls.col}18`,border:`0.5px solid ${cls.col}44`,color:cls.col,
                             }}>{cls.label}</div>
                             <div style={{height:4,background:"rgba(255,255,255,0.08)",borderRadius:3,overflow:"hidden"}}>
@@ -1809,17 +1864,17 @@ export default function App({variant}={}){
 
                 {/* Legend Reimers */}
                 <div style={{
-                  ...glassStyle({padding:"8px 12px",borderRadius:GL.radiusSm,
+                  ...glassStyle({padding:`10px ${SP.lg}px`,borderRadius:GL.radiusSm,
                     background:"rgba(0,0,0,0.2)"}),
-                  display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",
+                  display:"flex",columnGap:SP.lg,rowGap:6,flexWrap:"wrap",alignItems:"center",
                 }}>
                   {t.lgdReimers.map((x,xi)=>{
                     const cs=["#34d399","#60a5fa","#fbbf24","#f87171"][xi];
                     return(
-                      <div key={x.r} style={{display:"flex",alignItems:"center",gap:5}}>
-                        <div style={{width:6,height:6,borderRadius:"50%",background:cs,flexShrink:0}}/>
-                        <span style={{fontSize:11,color:GL.textTer}}>{x.r}</span>
-                        <span style={{fontSize:11,color:cs}}>{x.l}</span>
+                      <div key={x.r} style={{display:"flex",alignItems:"center",gap:6}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:cs,flexShrink:0}}/>
+                        <span style={{...TY.caption1,color:GL.textSec,fontVariantNumeric:"tabular-nums"}}>{x.r}</span>
+                        <span style={{...TY.caption1,fontWeight:500,color:cs}}>{x.l}</span>
                       </div>
                     );
                   })}
@@ -1827,11 +1882,11 @@ export default function App({variant}={}){
 
                 {/* AI results */}
                 {aiResults && (
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <div style={{fontSize:10,color:GL.textTer,letterSpacing:2,padding:"0 2px",marginTop:2}}>
+                  <div style={{display:"flex",flexDirection:"column",gap:SP.sm}}>
+                    <div style={{...TY.section,color:GL.textSec,padding:`0 ${SP.lg}px`,marginTop:SP.sm}}>
                       {t.aiTitle}
                     </div>
-                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                    <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
                       {[{side:t.sideR,key:"right",col:C.perkins_r},{side:t.sideL,key:"left",col:C.perkins_l}].map(({side,key,col})=>{
                         const aiEntry=aiResults[key];if(aiEntry==null) return null;
                         const hasErr=!!aiEntry.error;
@@ -1842,33 +1897,33 @@ export default function App({variant}={}){
                           <div key={key} style={{
                             flex:"1 1 130px",
                             ...glassStyle({
-                              padding:"12px 16px",
+                              padding:`14px ${SP.lg}px ${SP.lg}px`,
                               background:"rgba(255,255,255,0.05)",
                               borderTop:`2px solid ${hasErr?"#f87171":col}`,
                               boxShadow:`0 4px 24px rgba(0,0,0,0.25), inset 0 0 20px ${col}08`,
                             }),
                           }}>
-                            <div style={{fontSize:10,letterSpacing:1.5,color:`${col}cc`,marginBottom:4}}>{side}</div>
+                            <div style={{...TY.caption1,fontWeight:600,letterSpacing:0.3,color:col,marginBottom:6}}>{side}</div>
                             {hasErr ? (
                               <>
-                                <div style={{fontSize:22,fontWeight:700,color:"#f87171",lineHeight:1.2,marginBottom:6}}>
-                                  Erro
+                                <div style={{...TY.title2,color:"#f87171",marginBottom:SP.sm}}>
+                                  {t.errLabel}
                                 </div>
                                 <div style={{
-                                  fontSize:11,color:"#f87171",lineHeight:1.5,
+                                  ...TY.caption1,color:"#f87171",
                                   background:"rgba(248,113,113,0.1)",border:"0.5px solid rgba(248,113,113,0.3)",
                                   borderRadius:8,padding:"5px 8px",
                                 }}>{errMsg}</div>
                               </>
                             ) : (
                               <>
-                                <div style={{fontSize:36,fontWeight:700,color:cls.col,lineHeight:1,marginBottom:2,
+                                <div style={{fontSize:44,fontWeight:700,letterSpacing:-0.6,fontVariantNumeric:"tabular-nums",color:cls.col,lineHeight:1,marginBottom:SP.sm,
                                   textShadow:`0 0 16px ${cls.col}55`}}>
-                                  {deg}<span style={{fontSize:13,fontWeight:400,color:GL.textTer}}>°</span>
+                                  {deg}<span style={{fontWeight:300,letterSpacing:0,color:GL.textSec}}>°</span>
                                 </div>
                                 <div style={{
                                   display:"inline-block",
-                                  fontSize:11,padding:"2px 10px",borderRadius:20,marginBottom:8,
+                                  ...TY.caption1,fontWeight:600,padding:"3px 10px",borderRadius:999,marginBottom:SP.md,
                                   background:`${cls.col}18`,border:`0.5px solid ${cls.col}44`,color:cls.col,
                                 }}>{cls.label}</div>
                                 <div style={{height:4,background:"rgba(255,255,255,0.08)",borderRadius:3,overflow:"hidden"}}>
@@ -1884,17 +1939,17 @@ export default function App({variant}={}){
                     </div>
                     {/* AI legend */}
                     <div style={{
-                      ...glassStyle({padding:"8px 12px",borderRadius:GL.radiusSm,
+                      ...glassStyle({padding:`10px ${SP.lg}px`,borderRadius:GL.radiusSm,
                         background:"rgba(0,0,0,0.2)"}),
-                      display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",
+                      display:"flex",columnGap:SP.lg,rowGap:6,flexWrap:"wrap",alignItems:"center",
                     }}>
                       {t.lgdAI.map((x,xi)=>{
                         const cs=["#34d399","#fbbf24","#f87171"][xi];
                         return(
-                          <div key={x.r} style={{display:"flex",alignItems:"center",gap:5}}>
-                            <div style={{width:6,height:6,borderRadius:"50%",background:cs,flexShrink:0}}/>
-                            <span style={{fontSize:11,color:GL.textTer}}>{x.r}</span>
-                            <span style={{fontSize:11,color:cs}}>{x.l}</span>
+                          <div key={x.r} style={{display:"flex",alignItems:"center",gap:6}}>
+                            <div style={{width:8,height:8,borderRadius:"50%",background:cs,flexShrink:0}}/>
+                            <span style={{...TY.caption1,color:GL.textSec,fontVariantNumeric:"tabular-nums"}}>{x.r}</span>
+                            <span style={{...TY.caption1,fontWeight:500,color:cs}}>{x.l}</span>
                           </div>
                         );
                       })}
@@ -1904,24 +1959,24 @@ export default function App({variant}={}){
 
                 {hope ? (
                   <>
-                    <div style={{...glassStyle({padding:"8px 12px",borderRadius:GL.radiusSm,
-                      background:"rgba(94,174,255,0.08)",borderLeft:`2px solid ${GL.accent}`}),
-                      fontSize:12,color:GL.textSec,lineHeight:1.5}}>
+                    <div style={{...glassStyle({padding:`10px ${SP.lg}px`,borderRadius:GL.radiusSm,
+                      background:"rgba(94,174,255,0.08)",borderLeft:`3px solid ${GL.accent}`}),
+                      ...TY.footnote,color:GL.textSec}}>
                       {t.phase1Done}
                     </div>
                     <GlassBtn accent="rgba(94,174,255,0.3)" onClick={goHipPhase}
-                      style={{width:"100%",justifyContent:"center",padding:"12px 16px",fontSize:15,fontWeight:600}}>
+                      size="large" style={{width:"100%",justifyContent:"center"}}>
                       {t.btnContinueHip}
                     </GlassBtn>
                   </>
                 ) : (
                   <>
                 <GlassBtn accent="rgba(94,174,255,0.25)" onClick={handleExport}
-                  style={{width:"100%",justifyContent:"center",padding:"11px 16px",fontSize:14}}>
+                  size="large" style={{width:"100%",justifyContent:"center"}}>
                   {t.btnExport}
                 </GlassBtn>
                 <GlassBtn accent="rgba(52,211,153,0.2)" onClick={handleReset}
-                  style={{width:"100%",justifyContent:"center",padding:"11px 16px",fontSize:14}}>
+                  size="large" style={{width:"100%",justifyContent:"center",fontWeight:500}}>
                   {t.btnReset}
                 </GlassBtn>
                   </>
@@ -1945,33 +2000,33 @@ export default function App({variant}={}){
             backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",
             display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:16,overflowY:"auto"}}>
           <div onClick={e=>e.stopPropagation()}
-            style={{...glassStyle({padding:16,background:"rgba(13,22,40,0.92)"}),
-              width:"100%",maxWidth:560,display:"flex",flexDirection:"column",gap:12,maxHeight:"100%",overflowY:"auto"}}>
-            <div style={{fontSize:13,fontWeight:600,letterSpacing:1,color:GL.textPri}}>
+            style={{...glassStyle({padding:SP.xl,borderRadius:22,background:"rgba(13,22,40,0.92)"}),
+              width:"100%",maxWidth:560,boxSizing:"border-box",display:"flex",flexDirection:"column",gap:SP.md,maxHeight:"100%",overflowY:"auto"}}>
+            <div style={{...TY.headline,color:GL.textPri}}>
               {t.exportTitle} · {subjectId.trim()}
             </div>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
               {hopeFiles.filter(f=>f.img).map(f=>(
                 <img key={f.name} src={f.url} alt={f.label}
                   style={{flex:"1 1 200px",minWidth:0,maxWidth:"100%",maxHeight:"42vh",objectFit:"contain",
                     borderRadius:GL.radiusSm,border:`0.5px solid ${GL.border}`}}/>
               ))}
             </div>
-            <div style={{fontSize:11,color:GL.textTer}}>{t.exportIOS}</div>
+            <div style={{...TY.footnote,color:GL.textSec}}>{t.exportIOS}</div>
             {hopeFiles.map(f=>(
               <GlassBtn key={f.name} onClick={()=>downloadFile(f)}
-                style={{width:"100%",justifyContent:"space-between",padding:"10px 14px"}}>
+                size="large" style={{width:"100%",justifyContent:"space-between",...TY.subhead,fontWeight:500,gap:SP.md}}>
                 <span>{f.label}</span>
-                <span style={{fontSize:11,color:GL.textTer,fontFamily:"monospace"}}>{f.name}</span>
+                <span style={{...TY.caption1,color:GL.textSec,fontFamily:"ui-monospace, 'SF Mono', Menlo, monospace",overflow:"hidden",textOverflow:"ellipsis"}}>{f.name}</span>
               </GlassBtn>
             ))}
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
               <GlassBtn accent="rgba(94,174,255,0.3)" onClick={downloadAll}
-                style={{flex:1,justifyContent:"center",fontWeight:600}}>{t.dlAll}</GlassBtn>
+                size="large" style={{flex:1,justifyContent:"center"}}>{t.dlAll}</GlassBtn>
               {canShareFiles && (
-                <GlassBtn onClick={shareAll} style={{flex:1,justifyContent:"center"}}>{t.dlShare}</GlassBtn>
+                <GlassBtn onClick={shareAll} size="large" style={{flex:1,justifyContent:"center",fontWeight:500}}>{t.dlShare}</GlassBtn>
               )}
-              <GlassBtn onClick={()=>setHopeFiles(null)} style={{justifyContent:"center"}}>{t.dlClose}</GlassBtn>
+              <GlassBtn onClick={()=>setHopeFiles(null)} size="large" style={{justifyContent:"center",fontWeight:500}}>{t.dlClose}</GlassBtn>
             </div>
           </div>
         </div>
@@ -1985,11 +2040,11 @@ export default function App({variant}={}){
             display:"flex",flexDirection:"column",alignItems:"center",
             justifyContent:"center",gap:14,zIndex:9999,padding:16}}>
           <div style={{
-            ...glassStyle({padding:"10px 18px",borderRadius:GL.radiusSm}),
-            fontSize:12,color:GL.textSec,textAlign:"center",lineHeight:1.8,
+            ...glassStyle({padding:`${SP.md}px ${SP.xl}px`,borderRadius:GL.radiusSm}),
+            ...TY.footnote,color:GL.textPri,textAlign:"center",
           }}>
             {t.exportIOS}<br/>
-            <span style={{fontSize:11,color:GL.textTer}}>{t.exportClose}</span>
+            <span style={{...TY.caption1,color:GL.textSec}}>{t.exportClose}</span>
           </div>
           <img src={exportImg} alt="export"
             style={{maxWidth:"100%",maxHeight:"72vh",
@@ -2008,21 +2063,21 @@ function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onRese
   const sides=[{side:t.sideR,key:"right",col:C.perkins_r},{side:t.sideL,key:"left",col:C.perkins_l}];
   function card(title,field){
     return(
-      <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        <div style={{fontSize:10,color:GL.textTer,letterSpacing:2,padding:"0 2px",marginTop:4}}>{title}</div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+      <div style={{display:"flex",flexDirection:"column",gap:SP.sm}}>
+        <div style={{...TY.section,color:GL.textSec,padding:`0 ${SP.lg}px`,marginTop:SP.sm}}>{title}</div>
+        <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
           {sides.map(({side,key,col})=>{
             const v=hipRes[key][field];
             return(
-              <div key={key} style={{flex:"1 1 130px",...glassStyle({padding:"12px 16px",
+              <div key={key} style={{flex:"1 1 130px",...glassStyle({padding:`14px ${SP.lg}px ${SP.lg}px`,
                 background:"rgba(255,255,255,0.05)",borderTop:`2px solid ${col}`,
                 boxShadow:`0 4px 24px rgba(0,0,0,0.25), inset 0 0 20px ${col}08`})}}>
-                <div style={{fontSize:10,letterSpacing:1.5,color:`${col}cc`,marginBottom:4}}>{side}</div>
-                <div style={{fontSize:36,fontWeight:700,color:v!=null?col:GL.textTer,lineHeight:1,
+                <div style={{...TY.caption1,fontWeight:600,letterSpacing:0.3,color:col,marginBottom:6}}>{side}</div>
+                <div style={{fontSize:44,fontWeight:700,letterSpacing:-0.6,fontVariantNumeric:"tabular-nums",color:v!=null?col:GL.textTer,lineHeight:1,
                   textShadow:v!=null?`0 0 16px ${col}55`:"none"}}>
-                  {v!=null?v:"–"}<span style={{fontSize:13,fontWeight:400,color:GL.textTer}}>{v!=null?"°":""}</span>
+                  {v!=null?v:"–"}<span style={{fontWeight:300,letterSpacing:0,color:GL.textSec}}>{v!=null?"°":""}</span>
                 </div>
-                {v==null && <div style={{fontSize:11,color:GL.textTer,marginTop:4}}>{t.hipIncomplete}</div>}
+                {v==null && <div style={{...TY.footnote,color:GL.textTer,marginTop:SP.xs}}>{t.hipIncomplete}</div>}
               </div>
             );
           })}
@@ -2038,20 +2093,20 @@ function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onRese
     ["NSA",fmt(hipRes.right.nsa,"°"),fmt(hipRes.left.nsa,"°")],
     ["HSA",fmt(hipRes.right.hsa,"°"),fmt(hipRes.left.hsa,"°")],
   ];
-  const cellS={padding:"7px 10px",fontSize:12,borderTop:`0.5px solid ${GL.border}`};
+  const cellS={padding:`11px ${SP.lg}px`,...TY.subhead,borderTop:`0.5px solid ${GL.border}`};
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+    <div style={{display:"flex",flexDirection:"column",gap:SP.md}}>
       {card(t.nsaTitle,"nsa")}
       {card(t.hsaTitle,"hsa")}
 
-      <div style={{fontSize:10,color:GL.textTer,letterSpacing:2,padding:"0 2px",marginTop:6}}>{t.summaryTitle}</div>
+      <div style={{...TY.section,color:GL.textSec,padding:`0 ${SP.lg}px`,marginTop:SP.sm}}>{t.summaryTitle}</div>
       <div style={{...glassStyle({padding:0,overflow:"hidden",background:"rgba(0,0,0,0.2)"})}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontVariantNumeric:"tabular-nums"}}>
           <thead>
-            <tr style={{color:GL.textTer,fontSize:11,textAlign:"left"}}>
-              <th style={{padding:"7px 10px",fontWeight:500}}>{t.colMeasure}</th>
-              <th style={{padding:"7px 10px",fontWeight:500,color:C.perkins_r}}>{t.colRight}</th>
-              <th style={{padding:"7px 10px",fontWeight:500,color:C.perkins_l}}>{t.colLeft}</th>
+            <tr style={{color:GL.textSec,...TY.footnote,textAlign:"left"}}>
+              <th style={{padding:`10px ${SP.lg}px`,fontWeight:500}}>{t.colMeasure}</th>
+              <th style={{padding:`10px ${SP.lg}px`,fontWeight:600,color:C.perkins_r}}>{t.colRight}</th>
+              <th style={{padding:`10px ${SP.lg}px`,fontWeight:600,color:C.perkins_l}}>{t.colLeft}</th>
             </tr>
           </thead>
           <tbody>
@@ -2066,24 +2121,24 @@ function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onRese
         </table>
       </div>
 
-      <label style={{display:"flex",alignItems:"center",gap:8,marginTop:4,...glassStyle({padding:"8px 12px",borderRadius:GL.radiusSm})}}>
-        <span style={{fontSize:12,color:GL.textSec,whiteSpace:"nowrap"}}>{t.subjectLabel}</span>
+      <label style={{display:"flex",alignItems:"center",gap:SP.md,marginTop:SP.xs,minHeight:48,boxSizing:"border-box",...glassStyle({padding:`0 ${SP.lg}px`,borderRadius:GL.radiusSm})}}>
+        <span style={{...TY.subhead,color:GL.textSec,whiteSpace:"nowrap"}}>{t.subjectLabel}</span>
         <input value={subjectId} onChange={e=>setSubjectId(e.target.value)} placeholder={t.subjectPh}
           autoComplete="off" spellCheck={false}
           style={{flex:1,minWidth:0,background:"transparent",border:"none",outline:"none",
-            color:GL.textPri,fontSize:14,fontWeight:600,fontFamily:"inherit"}}/>
+            ...TY.body,fontWeight:600,color:GL.textPri,fontFamily:"inherit",textAlign:"right"}}/>
       </label>
 
       <GlassBtn accent="rgba(94,174,255,0.3)" onClick={onExport}
-        style={{width:"100%",justifyContent:"center",padding:"12px 16px",fontSize:15,fontWeight:600,
+        size="large" style={{width:"100%",justifyContent:"center",
           opacity:subjectId.trim()?1:0.5}}>
         {t.btnExportHope}
       </GlassBtn>
-      <div style={{display:"flex",gap:8}}>
-        <GlassBtn onClick={onBack} style={{flex:1,justifyContent:"center",padding:"10px 12px"}}>
+      <div style={{display:"flex",gap:SP.md}}>
+        <GlassBtn onClick={onBack} size="large" style={{flex:1,justifyContent:"center",...TY.subhead,fontWeight:500}}>
           {t.btnBackReimers}
         </GlassBtn>
-        <GlassBtn accent="rgba(52,211,153,0.2)" onClick={onReset} style={{flex:1,justifyContent:"center",padding:"10px 12px"}}>
+        <GlassBtn accent="rgba(52,211,153,0.2)" onClick={onReset} size="large" style={{flex:1,justifyContent:"center",...TY.subhead,fontWeight:500}}>
           {t.btnReset}
         </GlassBtn>
       </div>
@@ -2093,21 +2148,25 @@ function HopeResults({t,hipRes,pts,subjectId,setSubjectId,onBack,onExport,onRese
 
 // ─── Glass UI components ──────────────────────────────────────────────────────
 
-function GlassBtn({onClick,children,accent,style={}}){
+// size "regular": 36 pt toolbar button (subhead); "large": 50 pt full-width
+// action button (headline), matching iOS button sizes.
+function GlassBtn({onClick,children,accent,style={},size="regular"}){
+  const large=size==="large";
   return(
     <button onClick={onClick}
       style={{
         background:accent||GL.glass,
         backdropFilter:GL.blurLight,WebkitBackdropFilter:GL.blurLight,
         border:`0.5px solid ${GL.borderHigh}`,
-        color:GL.textPri,borderRadius:GL.radiusSm,
-        padding:"7px 13px",fontSize:13,fontWeight:500,
+        color:GL.textPri,borderRadius:large?14:GL.radiusSm,
+        minHeight:large?50:36,boxSizing:"border-box",
+        padding:large?`0 ${SP.lg}px`:"0 14px",
+        ...(large?TY.headline:{...TY.subhead,fontWeight:500}),
         cursor:"pointer",fontFamily:"inherit",
         WebkitTapHighlightColor:"transparent",
         flexShrink:0,whiteSpace:"nowrap",
-        display:"flex",alignItems:"center",gap:5,
+        display:"flex",alignItems:"center",gap:6,
         transition:"all 0.15s",
-        letterSpacing:0.3,
         ...style,
       }}>
       {children}
@@ -2119,13 +2178,14 @@ function GlassModeBtn({active,onClick,children}){
   return(
     <button onClick={onClick}
       style={{
-        padding:"6px 11px",fontSize:12,cursor:"pointer",
-        fontFamily:"inherit",letterSpacing:0.3,border:"none",
-        background:active?"rgba(255,255,255,0.15)":"transparent",
-        color:active?GL.textPri:GL.textTer,
-        borderRadius:7,
+        height:32,padding:"0 12px",...TY.footnote,cursor:"pointer",
+        fontFamily:"inherit",border:"none",
+        background:active?"rgba(255,255,255,0.18)":"transparent",
+        boxShadow:active?"0 3px 8px rgba(0,0,0,0.12)":"none",
+        color:active?GL.textPri:GL.textSec,
+        borderRadius:10,
         WebkitTapHighlightColor:"transparent",whiteSpace:"nowrap",
-        transition:"all 0.15s",fontWeight:active?500:400,
+        transition:"all 0.15s",fontWeight:active?600:500,
       }}>
       {children}
     </button>
@@ -2136,8 +2196,8 @@ function GlassIconBtn({onClick,disabled,children}){
   return(
     <button onClick={disabled?undefined:onClick}
       style={{
-        width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",
-        fontSize:18,fontWeight:300,cursor:disabled?"default":"pointer",
+        width:40,height:36,display:"flex",alignItems:"center",justifyContent:"center",
+        fontSize:20,fontWeight:400,lineHeight:1,padding:0,cursor:disabled?"default":"pointer",
         background:"transparent",border:"none",
         color:disabled?"rgba(255,255,255,0.15)":GL.textSec,
         fontFamily:"inherit",WebkitTapHighlightColor:"transparent",
@@ -2308,12 +2368,12 @@ function CropStep({img,t,onApply,onCancel}){
   }
 
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:10}}>
-      <div style={{...glassStyle({padding:"10px 14px",borderRadius:GL.radiusSm,
-        borderLeft:"2px solid #00e5ff",background:"rgba(0,229,255,0.07)"})}}>
-        <span style={{fontWeight:600,fontSize:13,color:"#00e5ff",letterSpacing:1}}>{t.cropTitle}</span>
-        <span style={{color:GL.textTer,margin:"0 6px"}}>→</span>
-        <span style={{fontSize:13,color:GL.textSec}}>{t.cropHint}</span>
+    <div style={{display:"flex",flexDirection:"column",gap:SP.md}}>
+      <div style={{...glassStyle({padding:`${SP.md}px ${SP.lg}px`,borderRadius:GL.radiusSm,
+        borderLeft:"3px solid #00e5ff",background:"rgba(0,229,255,0.07)"}),
+        display:"flex",flexDirection:"column",gap:2}}>
+        <span style={{...TY.subhead,fontWeight:600,color:"#00e5ff"}}>{t.uiCropTitle}</span>
+        <span style={{...TY.footnote,color:GL.textSec}}>{t.cropHint}</span>
       </div>
 
       <div ref={wrapRef} style={{borderRadius:GL.radius,overflow:"hidden",
@@ -2326,13 +2386,13 @@ function CropStep({img,t,onApply,onCancel}){
             userSelect:"none",WebkitUserSelect:"none"}}/>
       </div>
 
-      <div style={{...glassStyle({padding:"10px 12px",borderRadius:GL.radiusSm}),
-        display:"flex",alignItems:"center",gap:10}}>
-        <GlassBtn onClick={()=>turn(-1)} style={{padding:"7px 10px"}}><span title={t.cropRotL}>↺ 90°</span></GlassBtn>
+      <div style={{...glassStyle({padding:`10px ${SP.md}px`,borderRadius:GL.radiusSm}),
+        display:"flex",alignItems:"center",gap:SP.md}}>
+        <GlassBtn onClick={()=>turn(-1)} style={{padding:"0 10px"}}><span title={t.cropRotL}>↺ 90°</span></GlassBtn>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:2}}>
-            <span style={{color:GL.textTer,fontFamily:"monospace"}}>{t.cropAngle}</span>
-            <span style={{color:"#00e5ff",fontFamily:"monospace",fontWeight:600}}>
+          <div style={{display:"flex",justifyContent:"space-between",...TY.footnote,marginBottom:2}}>
+            <span style={{color:GL.textSec}}>{t.cropAngle}</span>
+            <span style={{color:"#00e5ff",fontWeight:600,fontVariantNumeric:"tabular-nums"}}>
               {(angle>=0?"+":"")+angle.toFixed(1)}°
             </span>
           </div>
@@ -2342,15 +2402,16 @@ function CropStep({img,t,onApply,onCancel}){
             aria-label={t.cropAngle}
             style={{width:"100%",accentColor:"#00e5ff"}}/>
         </div>
-        <GlassBtn onClick={()=>turn(1)} style={{padding:"7px 10px"}}><span title={t.cropRotR}>90° ↻</span></GlassBtn>
+        <GlassBtn onClick={()=>turn(1)} style={{padding:"0 10px"}}><span title={t.cropRotR}>90° ↻</span></GlassBtn>
       </div>
 
-      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-        <GlassBtn onClick={onCancel}>{t.cropCancel}</GlassBtn>
-        <GlassBtn onClick={reset} style={{opacity:unchanged?0.45:1}}>{t.cropReset}</GlassBtn>
-        <div style={{flex:1}}/>
-        <GlassBtn onClick={()=>onApply(img)}>{t.cropSkip}</GlassBtn>
-        <GlassBtn onClick={apply} accent="rgba(0,229,255,0.28)" style={{fontWeight:600}}>{t.cropApply}</GlassBtn>
+      <div style={{display:"flex",gap:SP.md,flexWrap:"wrap"}}>
+        <GlassBtn onClick={onCancel} style={{flex:1,justifyContent:"center"}}>{t.cropCancel}</GlassBtn>
+        <GlassBtn onClick={reset} style={{flex:1,justifyContent:"center",opacity:unchanged?0.45:1}}>{t.cropReset}</GlassBtn>
+      </div>
+      <div style={{display:"flex",gap:SP.sm}}>
+        <GlassBtn onClick={()=>onApply(img)} size="large" style={{flex:1,justifyContent:"center",fontWeight:500}}>{t.cropSkip}</GlassBtn>
+        <GlassBtn onClick={apply} size="large" accent="rgba(0,229,255,0.28)" style={{flex:1,justifyContent:"center"}}>{t.cropApply}</GlassBtn>
       </div>
     </div>
   );
