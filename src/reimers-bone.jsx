@@ -36,7 +36,7 @@ const TRANSLATIONS = {
     grpShaftR:"Diáfise D",grpHeadR:"Cabeça D",grpNeckR:"Colo D",grpPhysR:"Fise D",
     grpShaftL:"Diáfise E",grpHeadL:"Cabeça E",grpNeckL:"Colo E",grpPhysL:"Fise E",
     slotShaft:["cortical medial (nível proximal)","cortical lateral (nível proximal)","cortical medial (nível distal)","cortical lateral (nível distal)"],
-    slotHead:["contorno da cabeça (ponto 1 de 3)","contorno da cabeça (ponto 2 de 3)","contorno da cabeça (ponto 3 de 3)"],
+    slotHead:["centro da cabeça","contorno da cabeça (deslize para ajustar o tamanho do círculo)"],
     slotNeck:["borda superior do colo (parte mais estreita)","borda inferior do colo (parte mais estreita)"],
     slotPhys:["extremidade medial da fise","extremidade lateral da fise"],
     nsaTitle:"ÂNGULO CERVICODIAFISÁRIO (NSA)",hsaTitle:"ÂNGULO CABEÇA-DIÁFISE (HSA)",
@@ -48,6 +48,7 @@ const TRANSLATIONS = {
     exportTitle:"Arquivos do sujeito",dlAll:"⬇ Baixar todos",dlShare:"Compartilhar",dlClose:"Fechar",
     fileCsv:"Planilha CSV (todas as medidas)",filePng1:"Imagem Reimers e IA",filePng2:"Imagem NSA e HSA",
     hipIncomplete:"incompleto",
+    confirmReset:"Apagar todas as marcações e começar uma nova medição?",
   },
   en: {
     appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
@@ -80,7 +81,7 @@ const TRANSLATIONS = {
     grpShaftR:"Shaft R",grpHeadR:"Head R",grpNeckR:"Neck R",grpPhysR:"Physis R",
     grpShaftL:"Shaft L",grpHeadL:"Head L",grpNeckL:"Neck L",grpPhysL:"Physis L",
     slotShaft:["medial cortex (proximal level)","lateral cortex (proximal level)","medial cortex (distal level)","lateral cortex (distal level)"],
-    slotHead:["head contour (point 1 of 3)","head contour (point 2 of 3)","head contour (point 3 of 3)"],
+    slotHead:["centre of the head","head contour (slide to size the circle)"],
     slotNeck:["superior neck border (narrowest part)","inferior neck border (narrowest part)"],
     slotPhys:["medial end of the physis","lateral end of the physis"],
     nsaTitle:"NECK-SHAFT ANGLE (NSA)",hsaTitle:"HEAD-SHAFT ANGLE (HSA)",
@@ -92,6 +93,7 @@ const TRANSLATIONS = {
     exportTitle:"Subject files",dlAll:"⬇ Download all",dlShare:"Share",dlClose:"Close",
     fileCsv:"CSV spreadsheet (all measures)",filePng1:"Reimers and AI image",filePng2:"NSA and HSA image",
     hipIncomplete:"incomplete",
+    confirmReset:"Clear all landmarks and start a new measurement?",
   },
   es: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
@@ -124,7 +126,7 @@ const TRANSLATIONS = {
     grpShaftR:"Diáfisis D",grpHeadR:"Cabeza D",grpNeckR:"Cuello D",grpPhysR:"Fisis D",
     grpShaftL:"Diáfisis I",grpHeadL:"Cabeza I",grpNeckL:"Cuello I",grpPhysL:"Fisis I",
     slotShaft:["cortical medial (nivel proximal)","cortical lateral (nivel proximal)","cortical medial (nivel distal)","cortical lateral (nivel distal)"],
-    slotHead:["contorno de la cabeza (punto 1 de 3)","contorno de la cabeza (punto 2 de 3)","contorno de la cabeza (punto 3 de 3)"],
+    slotHead:["centro de la cabeza","contorno de la cabeza (deslice para ajustar el tamaño del círculo)"],
     slotNeck:["borde superior del cuello (parte más estrecha)","borde inferior del cuello (parte más estrecha)"],
     slotPhys:["extremo medial de la fisis","extremo lateral de la fisis"],
     nsaTitle:"ÁNGULO CERVICODIAFISARIO (NSA)",hsaTitle:"ÁNGULO CABEZA-DIÁFISIS (HSA)",
@@ -136,6 +138,7 @@ const TRANSLATIONS = {
     exportTitle:"Archivos del sujeto",dlAll:"⬇ Descargar todos",dlShare:"Compartir",dlClose:"Cerrar",
     fileCsv:"Planilla CSV (todas las medidas)",filePng1:"Imagen Reimers e IA",filePng2:"Imagen NSA y HSA",
     hipIncomplete:"incompleto",
+    confirmReset:"¿Borrar todas las marcas y comenzar una nueva medición?",
   },
 };
 
@@ -347,7 +350,7 @@ function classify(i,t){
 //  Landmarks per side (image coordinates):
 //    shaft: medial + lateral cortex at a proximal level, then at a distal level.
 //           The shaft axis joins the two midpoints.
-//    head:  3 points on the femoral head contour → circle → head centre.
+//    head:  centre of the head + one point on its contour (radius); the circle can be resized and moved.
 //    neck:  superior + inferior border at the narrowest part → neck midpoint.
 //           Neck axis = neck midpoint → head centre.
 //    physis: medial + lateral ends of the capital physis.
@@ -379,7 +382,8 @@ function hipSide(sh=[],hd=[],nk=[],ph=[]){
   const g={};
   if(sh.length>=2) g.m1=vMid(sh[0],sh[1]);
   if(sh.length>=4) g.m2=vMid(sh[2],sh[3]);
-  if(hd.length>=3){ const c=circle3(hd[0],hd[1],hd[2]); if(c){g.hc=c.c;g.hr=c.r;} else g.headErr=true; }
+  // Head: centre point + a point on the contour (the circle's radius)
+  if(hd.length>=2){ g.hc=hd[0]; g.hr=Math.hypot(hd[1].x-hd[0].x,hd[1].y-hd[0].y); }
   if(nk.length>=2) g.nm=vMid(nk[0],nk[1]);
   if(ph.length>=2) g.pm=vMid(ph[0],ph[1]);
   if(g.m1&&g.m2){
@@ -471,7 +475,7 @@ function drawHipOverlay(ctx,p,toCv,k,W,H,dotFn){
     }
     // dots
     sh.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"D");});
-    hd.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"C");});
+    hd.forEach((pt,i)=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,i===0?"C":"R");});
     nk.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"N");});
     ph.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"F");});
     // angle values next to the distal end of the shaft axis
@@ -651,6 +655,14 @@ export default function App({variant}={}){
     // HOPE: NSA/HSA phase shows the radiograph again with only its own landmarks
     if(HIP_PHASE.has((S.current.stepIds||STEP_IDS)[S.current.step])){
       drawHipOverlay(ctx,p,toCv,bs*z,W,H,(x,y,col,lbl)=>dot(ctx,x,y,col,lbl));
+      // While sizing the head (centre placed, finger down), preview the circle
+      const sid=(S.current.stepIds||STEP_IDS)[S.current.step];
+      if(/^head_/.test(sid)&&(p[sid]||[]).length===1&&S.current.down&&magPos&&!S.current.dragging){
+        const c=toCv(p[sid][0]);
+        const r=Math.hypot(magPos.ix-p[sid][0].x,magPos.iy-p[sid][0].y)*bs*z;
+        ctx.save();ctx.strokeStyle=sid.endsWith("_r")?C.perkins_r:C.perkins_l;ctx.lineWidth=1.5;
+        ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(c.cx,c.cy,r,0,Math.PI*2);ctx.stroke();ctx.restore();
+      }
       if(magPos) drawMag(ctx,magPos,img,W,H,bs);
       return;
     }
@@ -724,7 +736,7 @@ export default function App({variant}={}){
     if(magPos) drawMag(ctx,magPos,img,W,H,bs);
   },[]);
 
-  useEffect(()=>{ draw(); },[draw,pts,canvSize,zoom,imgEl]);
+  useEffect(()=>{ draw(); },[draw,pts,canvSize,zoom,imgEl,step]);
 
   function infLine(ctx,x1,y1,x2,y2,col,W,H){
     const dx=x2-x1,dy=y2-y1;if(!dx&&!dy) return;
@@ -804,7 +816,12 @@ export default function App({variant}={}){
     const k=W/rect.width;
     const hitR=HIT_R_CSS*k, blockR=PLACE_BLOCK_R_CSS*k;
     let best=null,bestD=hitR;
+    // While sizing a head circle (only its centre placed), a press anywhere
+    // starts the circle instead of grabbing the centre
+    const curId=(S.current.stepIds||STEP_IDS)[S.current.step];
+    const sizingHead=/^head_/.test(curId)&&(p[curId]||[]).length===1;
     for(const g of (S.current.groups||GROUPS)){
+      if(sizingHead&&g.id===curId) continue;
       (p[g.id]||[]).forEach((pt,i)=>{
         const cx=pt.x*bs*z+px,cy=pt.y*bs*z+py;
         const dd=dst({x:cx,y:cy},{x:cpx,y:cpy});
@@ -892,7 +909,13 @@ export default function App({variant}={}){
         if(S.current.dragging&&!isPan){
           const{gid,idx}=S.current.dragging;
           setPts(prev=>{
-            const arr=[...prev[gid]];arr[idx]={x:imgPt.x,y:imgPt.y};
+            const arr=[...prev[gid]];
+            // Head circle: dragging the centre moves the whole circle (radius kept)
+            if(/^head_/.test(gid)&&idx===0&&arr[0]&&arr[1]){
+              const dx=imgPt.x-arr[0].x,dy=imgPt.y-arr[0].y;
+              arr[1]={x:arr[1].x+dx,y:arr[1].y+dy};
+            }
+            arr[idx]={x:imgPt.x,y:imgPt.y};
             const next={...prev,[gid]:arr};S.current.pts=next;return next;
           });
         } else if(isPan&&!S.current.dragging){
@@ -992,6 +1015,10 @@ export default function App({variant}={}){
       setPts(p=>{const u={...p,[prevId]:(p[prevId]||[]).slice(0,-1)};S.current.pts=u;return u;});
       const ns=step-1;S.current.step=ns;setStep(ns);
     }
+  }
+  // Reset always asks first; it is available at every step once an image is loaded
+  function askReset(){
+    if(window.confirm(t.confirmReset)) handleReset();
   }
   function handleReset(){
     const e=emptyPts();
@@ -1426,11 +1453,14 @@ export default function App({variant}={}){
       return (pts[id]||[]).length<g.slots.length;
     });
     const ns=stepIds.indexOf(next||"result2");
+    // The image comes back zoomed out, at its original position, without the Reimers/AI lines
+    S.current.zoom=1;S.current.panX=0;S.current.panY=0;S.current.magPos=null;setZoom(1);
     S.current.step=ns;setStep(ns);
     setMode("annotate");S.current.mode="annotate";
   }
   function goReimersResult(){
     const ns=stepIds.indexOf("result");
+    S.current.zoom=1;S.current.panX=0;S.current.panY=0;S.current.magPos=null;setZoom(1);
     S.current.step=ns;setStep(ns);
   }
 
@@ -1527,8 +1557,8 @@ export default function App({variant}={}){
           </select>
         </label>
         )}
-        {step>0 && (
-          <button onClick={handleReset} aria-label={t.btnReset}
+        {(step>0||cropImg) && (
+          <button onClick={askReset} aria-label={t.btnReset}
             style={{width:32,height:32,borderRadius:"50%",flexShrink:0,
               display:"flex",alignItems:"center",justifyContent:"center",
               background:"rgba(255,100,100,0.28)",border:`0.5px solid ${GL.borderHigh}`,
@@ -1975,7 +2005,7 @@ export default function App({variant}={}){
                   size="large" style={{width:"100%",justifyContent:"center"}}>
                   {t.btnExport}
                 </GlassBtn>
-                <GlassBtn accent="rgba(52,211,153,0.2)" onClick={handleReset}
+                <GlassBtn accent="rgba(52,211,153,0.2)" onClick={askReset}
                   size="large" style={{width:"100%",justifyContent:"center",fontWeight:500}}>
                   {t.btnReset}
                 </GlassBtn>
@@ -1987,7 +2017,7 @@ export default function App({variant}={}){
             {/* HOPE: NSA / HSA result and export */}
             {isResult2 && hipRes && (
               <HopeResults t={t} hipRes={hipRes} pts={pts} subjectId={subjectId} setSubjectId={setSubjectId}
-                onBack={goReimersResult} onExport={handleHopeExport} onReset={handleReset}/>
+                onBack={goReimersResult} onExport={handleHopeExport} onReset={askReset}/>
             )}
           </div>
         )}
