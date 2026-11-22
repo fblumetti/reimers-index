@@ -1347,9 +1347,11 @@ export default function App({variant}={}){
     const now=new Date();
     const pad=n=>String(n).padStart(2,"0");
     const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const num=v=>(v==null||v.error)?"":String(v);
-    const rIdx=r=>(!r||r.error)?"":String(r.index);
-    const aVal=a=>(!a||a.error)?"":String(a.value);
+    // Always a dot as decimal separator and one decimal place (e.g. 12.2), never a comma
+    const fx=v=>Number(v).toFixed(1);
+    const num=v=>(v==null||v.error)?"":fx(v);
+    const rIdx=r=>(!r||r.error)?"":fx(r.index);
+    const aVal=a=>(!a||a.error)?"":fx(a.value);
     const cell=v=>{ const x=String(v??""); return /[",\n;]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x; };
     const head=["study","subject_id","measured_at","image_file",
       "reimers_right_pct","reimers_left_pct","ai_right_deg","ai_left_deg",
