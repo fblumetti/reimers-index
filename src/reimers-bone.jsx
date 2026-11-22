@@ -7,7 +7,7 @@ const TRANSLATIONS = {
   pt: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PERCENTUAL DE MIGRAÇÃO DO FÊMUR PROXIMAL",
     uiTitle:"Índice de Reimers",uiSubtitle:"Percentual de Migração do Fêmur Proximal",uiHopeTitle:"Estudo HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Recortar e alinhar",btnNext:"Próximo",errLabel:"Erro",
-    loadTitle:"Carregar Radiografia",loadDesc:"Selecione uma radiografia de bacia AP para medir o índice de migração de Reimers.",
+    loadTitle:"Carregar Radiografia",loadDesc:"Selecione uma radiografia de bacia AP para medir o Percentual de Migração de Reimers.",
     touchDrop:"Toque ou arraste",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins E",grpFemR:"Fêmur D",grpFemL:"Fêmur E",
     slotTD:"Trirradiada D",slotTE:"Trirradiada E",slotBordR:"Bordo acetabular D",slotBordL:"Bordo acetabular E",
@@ -51,7 +51,7 @@ const TRANSLATIONS = {
   en: {
     appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
     uiTitle:"Reimers Index",uiSubtitle:"Proximal Femoral Migration Percentage",uiHopeTitle:"HOPE Study",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Crop & straighten",btnNext:"Next",errLabel:"Error",
-    loadTitle:"Load Radiograph",loadDesc:"Select an AP pelvis radiograph to measure the Reimers migration index.",
+    loadTitle:"Load Radiograph",loadDesc:"Select an AP pelvis radiograph to measure the Reimers Migration Percentage.",
     touchDrop:"Tap or drag",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins R",grpPerkL:"Perkins L",grpFemR:"Femur R",grpFemL:"Femur L",
     slotTD:"Triradiate R",slotTE:"Triradiate L",slotBordR:"Acetabular edge R",slotBordL:"Acetabular edge L",
@@ -95,7 +95,7 @@ const TRANSLATIONS = {
   es: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
     uiTitle:"Índice de Reimers",uiSubtitle:"Porcentaje de Migración Femoral Proximal",uiHopeTitle:"Estudio HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Recortar y alinear",btnNext:"Siguiente",errLabel:"Error",
-    loadTitle:"Cargar Radiografía",loadDesc:"Seleccione una radiografía de pelvis AP para medir el índice de migración de Reimers.",
+    loadTitle:"Cargar Radiografía",loadDesc:"Seleccione una radiografía de pelvis AP para medir el Porcentaje de Migración de Reimers.",
     touchDrop:"Toque o arrastre",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins I",grpFemR:"Fémur D",grpFemL:"Fémur I",
     slotTD:"Trirradiada D",slotTE:"Trirradiada I",slotBordR:"Borde acetabular D",slotBordL:"Borde acetabular I",
