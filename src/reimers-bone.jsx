@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import FISE_LOGO from "./assets/instituto-fise.png";
-import HOPE_LOGO from "./assets/hope-logo.png";
 import HOPE_ICON from "./assets/hope-icon.png";
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
@@ -478,15 +477,6 @@ function drawHipOverlay(ctx,p,toCv,k,W,H,dotFn){
     hd.forEach((pt,i)=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,i===0?"C":"R");});
     nk.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"N");});
     ph.forEach(pt=>{const c=toCv(pt);dotFn(c.cx,c.cy,col,"F");});
-    // angle values next to the distal end of the shaft axis
-    const lines=[];
-    if(g.nsa!=null) lines.push("NSA "+g.nsa+"°");
-    if(g.hsa!=null) lines.push("HSA "+g.hsa+"°");
-    const anchor=g.m2||g.m1;
-    if(lines.length&&anchor){
-      const a=c2(anchor), right=s==="r";
-      label(a.x+(right?-20:20),a.y+22,lines,col,right?"right":"left");
-    }
   });
 }
 
@@ -1227,6 +1217,8 @@ export default function App({variant}={}){
 
       // value (big number) + unit — centered horizontally
       const centerX = x + cw / 2;
+      // Value baseline: leave room above the classification badge
+      const valBase = y + ch - (clsLabel ? 32 : 28);
       ctx.font = `700 36px ${FONT}`;
       const valMeasure = ctx.measureText(valueStr);
       ctx.font = `400 14px ${FONT}`;
@@ -1239,13 +1231,13 @@ export default function App({variant}={}){
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.shadowBlur = 0;
-      ctx.fillText(valueStr, valStartX, y + ch - 24);
+      ctx.fillText(valueStr, valStartX, valBase);
 
       // unit suffix — slightly smaller, muted
       ctx.font = `400 14px ${FONT}`;
       ctx.fillStyle = "rgba(255,255,255,0.3)";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(unit, valStartX + valMeasure.width + 3, y + ch - 24);
+      ctx.fillText(unit, valStartX + valMeasure.width + 3, valBase);
 
       // classification badge pill — centered
       if(clsLabel){
@@ -1367,15 +1359,26 @@ export default function App({variant}={}){
         im.src=src;
       });
     }
-    Promise.all([loadLogo(BONE_LEARNING_LOGO),loadLogo(FISE_LOGO),hope?loadLogo(HOPE_LOGO):Promise.resolve(null)]).then(([blLogo,fiseLogo,hopeLogo])=>{
+    Promise.all([loadLogo(BONE_LEARNING_LOGO),loadLogo(FISE_LOGO),hope?loadLogo(HOPE_ICON):Promise.resolve(null)]).then(([blLogo,fiseLogo,hopeLogo])=>{
       const LOGO_GAP=18;
       const items=[];
-      // HOPE logo on its own white tile, full opacity, left of the other logos
-      if(hopeLogo&&hopeLogo.naturalHeight){
-        const th=LOGO_H, tw=Math.round(th*hopeLogo.naturalWidth/hopeLogo.naturalHeight);
-        items.push({hope:true,im:hopeLogo,w:tw+8});
-      }
       if(blLogo) items.push({im:blLogo,w:LOGO_W});
+      // HOPE: the app icon as a watermark — white strokes only, black background made
+      // transparent (brightness → alpha), faded like the other logos
+      if(hopeLogo&&hopeLogo.naturalHeight){
+        const n=hopeLogo.naturalWidth, m=hopeLogo.naturalHeight;
+        const oc=document.createElement("canvas"); oc.width=n; oc.height=m;
+        const ox=oc.getContext("2d"); ox.drawImage(hopeLogo,0,0);
+        try{
+          const d=ox.getImageData(0,0,n,m), px=d.data;
+          for(let i=0;i<px.length;i+=4){
+            const lum=Math.max(px[i],px[i+1],px[i+2]);
+            px[i]=px[i+1]=px[i+2]=255; px[i+3]=Math.round(px[i+3]*lum/255);
+          }
+          ox.putImageData(d,0,0);
+          items.push({im:oc,w:Math.round(LOGO_H*n/m)});
+        }catch(e){}
+      }
       if(fiseLogo&&fiseLogo.naturalHeight)
         items.push({im:fiseLogo,w:Math.round(LOGO_H*fiseLogo.naturalWidth/fiseLogo.naturalHeight)});
       const totalW=items.reduce((a,it)=>a+it.w,0)+LOGO_GAP*Math.max(0,items.length-1);
@@ -1384,12 +1387,7 @@ export default function App({variant}={}){
       ctx.save();
       ctx.globalAlpha=0.35;
       items.forEach(it=>{
-        if(it.hope){
-          ctx.save();ctx.globalAlpha=1;ctx.fillStyle="#ffffff";
-          ctx.beginPath();roundRect(ctx,lx,ly,it.w,LOGO_H,8);ctx.fill();
-          ctx.drawImage(it.im,lx+4,ly+2,it.w-8,LOGO_H-4);
-          ctx.restore();
-        } else ctx.drawImage(it.im,lx,ly,it.w,LOGO_H);
+        ctx.drawImage(it.im,lx,ly,it.w,LOGO_H);
         lx+=it.w+LOGO_GAP;
       });
       ctx.restore();
@@ -1413,7 +1411,7 @@ export default function App({variant}={}){
       :`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
     const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
     // Always a dot as decimal separator and one decimal place (e.g. 12.2), never a comma
-    const fx=v=>Number(v).toFixed(1);
+    const fx=v=>Number.isFinite(Number(v))?Number(v).toFixed(1):"";
     const num=v=>(v==null||v.error)?"":fx(v);
     const rIdx=r=>(!r||r.error)?"":fx(r.index);
     const aVal=a=>(!a||a.error)?"":fx(a.value);
