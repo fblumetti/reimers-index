@@ -5,8 +5,8 @@ import HOPE_ICON from "./assets/hope-icon.png";
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 const TRANSLATIONS = {
   pt: {
-    appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PERCENTUAL DE MIGRAÇÃO DO FÊMUR PROXIMAL",
-    uiTitle:"Índice de Reimers",uiSubtitle:"Percentual de Migração do Fêmur Proximal",uiHopeTitle:"Estudo HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Recortar e alinhar",btnNext:"Próximo",errLabel:"Erro",
+    appTitle:"PM DE REIMERS",appSubtitle:"PERCENTUAL DE MIGRAÇÃO DO FÊMUR PROXIMAL",
+    uiTitle:"Percentual de Migração de Reimers",uiSubtitle:"Percentual de Migração do Fêmur Proximal",uiHopeTitle:"Estudo HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Recortar e alinhar",btnNext:"Próximo",errLabel:"Erro",
     loadTitle:"Carregar Radiografia",loadDesc:"Selecione uma radiografia de bacia AP para medir o Percentual de Migração de Reimers.",
     touchDrop:"Toque ou arraste",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins E",grpFemR:"Fêmur D",grpFemL:"Fêmur E",
@@ -17,7 +17,7 @@ const TRANSLATIONS = {
     hintPan:"Arraste para mover a imagem",hintAnnotate:"Toque p/ anotar · Arraste pontos",
     btnUndo:"↩ Desfazer",btnReset:"↺ Nova medição",btnExport:"⬇ Exportar imagem",btnZoomReset:"⌂ Reset",
     tipDrag:"💡 Arraste qualquer ponto para reposicionar — resultado recalcula automaticamente",
-    reimersTitle:"ÍNDICE DE REIMERS",aiTitle:"ÍNDICE ACETABULAR",sideR:"DIREITO",sideL:"ESQUERDO",femur:"FÊMUR",
+    reimersTitle:"PERCENTUAL DE MIGRAÇÃO DE REIMERS",reimersShort:"PM DE REIMERS",aiTitle:"ÍNDICE ACETABULAR",sideR:"DIREITO",sideL:"ESQUERDO",femur:"FÊMUR",
     clsNormal:"Normal",clsDys:"Displásico",clsSub:"Subluxado",clsLux:"Luxado",
     clsAINormal:"Normal",clsAIBorder:"Limítrofe",clsAIHigh:"Aumentado",
     lgdReimers:[{r:"< 10%",l:"Normal"},{r:"10–30%",l:"Displásico"},{r:"30–60%",l:"Subluxado"},{r:"> 60%",l:"Luxado"}],
@@ -30,7 +30,7 @@ const TRANSLATIONS = {
     cropRotL:"Girar 90° à esquerda",cropRotR:"Girar 90° à direita",
     // HOPE study edition
     hopeTitle:"ESTUDO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL HEMIEPIPHYSIODESIS",
-    hopeLoadDesc:"Carregue a radiografia de bacia AP (com o identificador do sujeito, se quiser). Primeiro mede-se o índice de Reimers e o índice acetabular; depois, na mesma imagem, os ângulos cervicodiafisário (NSA) e cabeça-diáfise (HSA).",
+    hopeLoadDesc:"Carregue a radiografia de bacia AP (com o identificador do sujeito, se quiser). Primeiro mede-se o percentual de migração de Reimers e o índice acetabular; depois, na mesma imagem, os ângulos cervicodiafisário (NSA) e cabeça-diáfise (HSA).",
     subjectLabel:"Identificador do sujeito",subjectPh:"ex.: HOPE-001",subjectNeeded:"Informe o identificador do sujeito para começar",subjectShort:"Sujeito",useIdLabel:"Usar identificador do sujeito",
     grpShaftR:"Diáfise D",grpHeadR:"Cabeça D",grpNeckR:"Colo D",grpPhysR:"Fise D",
     grpShaftL:"Diáfise E",grpHeadL:"Cabeça E",grpNeckL:"Colo E",grpPhysL:"Fise E",
@@ -50,8 +50,8 @@ const TRANSLATIONS = {
     confirmReset:"Apagar todas as marcações e começar uma nova medição?",
   },
   en: {
-    appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
-    uiTitle:"Reimers Index",uiSubtitle:"Proximal Femoral Migration Percentage",uiHopeTitle:"HOPE Study",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Crop & straighten",btnNext:"Next",errLabel:"Error",
+    appTitle:"REIMERS MP",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
+    uiTitle:"Reimers Migration Percentage",uiSubtitle:"Proximal Femoral Migration Percentage",uiHopeTitle:"HOPE Study",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Crop & straighten",btnNext:"Next",errLabel:"Error",
     loadTitle:"Load Radiograph",loadDesc:"Select an AP pelvis radiograph to measure the Reimers Migration Percentage.",
     touchDrop:"Tap or drag",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins R",grpPerkL:"Perkins L",grpFemR:"Femur R",grpFemL:"Femur L",
@@ -62,7 +62,7 @@ const TRANSLATIONS = {
     hintPan:"Drag to move the image",hintAnnotate:"Tap to annotate · Drag points",
     btnUndo:"↩ Undo",btnReset:"↺ New study",btnExport:"⬇ Export image",btnZoomReset:"⌂ Reset",
     tipDrag:"💡 Drag any point to reposition — result updates automatically",
-    reimersTitle:"REIMERS INDEX",aiTitle:"ACETABULAR INDEX",sideR:"RIGHT",sideL:"LEFT",femur:"FEMUR",
+    reimersTitle:"REIMERS MIGRATION PERCENTAGE",reimersShort:"REIMERS MP",aiTitle:"ACETABULAR INDEX",sideR:"RIGHT",sideL:"LEFT",femur:"FEMUR",
     clsNormal:"Normal",clsDys:"Dysplastic",clsSub:"Subluxated",clsLux:"Dislocated",
     clsAINormal:"Normal",clsAIBorder:"Borderline",clsAIHigh:"Elevated",
     lgdReimers:[{r:"< 10%",l:"Normal"},{r:"10–30%",l:"Dysplastic"},{r:"30–60%",l:"Subluxated"},{r:"> 60%",l:"Dislocated"}],
@@ -75,7 +75,7 @@ const TRANSLATIONS = {
     cropRotL:"Rotate 90° left",cropRotR:"Rotate 90° right",
     // HOPE study edition
     hopeTitle:"HOPE STUDY",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL HEMIEPIPHYSIODESIS",
-    hopeLoadDesc:"Load an AP pelvis radiograph (with the subject identifier, if you wish). First the Reimers index and acetabular index are measured; then, on the same image, the neck-shaft angle (NSA) and head-shaft angle (HSA).",
+    hopeLoadDesc:"Load an AP pelvis radiograph (with the subject identifier, if you wish). First the Reimers migration percentage and acetabular index are measured; then, on the same image, the neck-shaft angle (NSA) and head-shaft angle (HSA).",
     subjectLabel:"Subject identifier",subjectPh:"e.g. HOPE-001",subjectNeeded:"Enter the subject identifier to start",subjectShort:"Subject",useIdLabel:"Use subject identifier",
     grpShaftR:"Shaft R",grpHeadR:"Head R",grpNeckR:"Neck R",grpPhysR:"Physis R",
     grpShaftL:"Shaft L",grpHeadL:"Head L",grpNeckL:"Neck L",grpPhysL:"Physis L",
@@ -95,8 +95,8 @@ const TRANSLATIONS = {
     confirmReset:"Clear all landmarks and start a new measurement?",
   },
   es: {
-    appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
-    uiTitle:"Índice de Reimers",uiSubtitle:"Porcentaje de Migración Femoral Proximal",uiHopeTitle:"Estudio HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Recortar y alinear",btnNext:"Siguiente",errLabel:"Error",
+    appTitle:"PM DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
+    uiTitle:"Porcentaje de Migración de Reimers",uiSubtitle:"Porcentaje de Migración Femoral Proximal",uiHopeTitle:"Estudio HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Recortar y alinear",btnNext:"Siguiente",errLabel:"Error",
     loadTitle:"Cargar Radiografía",loadDesc:"Seleccione una radiografía de pelvis AP para medir el Porcentaje de Migración de Reimers.",
     touchDrop:"Toque o arrastre",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins I",grpFemR:"Fémur D",grpFemL:"Fémur I",
@@ -107,7 +107,7 @@ const TRANSLATIONS = {
     hintPan:"Arrastre para mover la imagen",hintAnnotate:"Toque p/ anotar · Arrastre puntos",
     btnUndo:"↩ Deshacer",btnReset:"↺ Nueva medición",btnExport:"⬇ Exportar imagen",btnZoomReset:"⌂ Reset",
     tipDrag:"💡 Arrastre cualquier punto para reposicionar — el resultado se actualiza automáticamente",
-    reimersTitle:"ÍNDICE DE REIMERS",aiTitle:"ÍNDICE ACETABULAR",sideR:"DERECHO",sideL:"IZQUIERDO",femur:"FÉMUR",
+    reimersTitle:"PORCENTAJE DE MIGRACIÓN DE REIMERS",reimersShort:"PM DE REIMERS",aiTitle:"ÍNDICE ACETABULAR",sideR:"DERECHO",sideL:"IZQUIERDO",femur:"FÉMUR",
     clsNormal:"Normal",clsDys:"Displásico",clsSub:"Subluxado",clsLux:"Luxado",
     clsAINormal:"Normal",clsAIBorder:"Limítrofe",clsAIHigh:"Aumentado",
     lgdReimers:[{r:"< 10%",l:"Normal"},{r:"10–30%",l:"Displásico"},{r:"30–60%",l:"Subluxado"},{r:"> 60%",l:"Luxado"}],
@@ -120,7 +120,7 @@ const TRANSLATIONS = {
     cropRotL:"Girar 90° a la izquierda",cropRotR:"Girar 90° a la derecha",
     // HOPE study edition
     hopeTitle:"ESTUDIO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL HEMIEPIPHYSIODESIS",
-    hopeLoadDesc:"Cargue la radiografía de pelvis AP (con el identificador del sujeto, si lo desea). Primero se mide el índice de Reimers y el índice acetabular; después, en la misma imagen, el ángulo cervicodiafisario (NSA) y el ángulo cabeza-diáfisis (HSA).",
+    hopeLoadDesc:"Cargue la radiografía de pelvis AP (con el identificador del sujeto, si lo desea). Primero se mide el porcentaje de migración de Reimers y el índice acetabular; después, en la misma imagen, el ángulo cervicodiafisario (NSA) y el ángulo cabeza-diáfisis (HSA).",
     subjectLabel:"Identificador del sujeto",subjectPh:"ej.: HOPE-001",subjectNeeded:"Ingrese el identificador del sujeto para comenzar",subjectShort:"Sujeto",useIdLabel:"Usar identificador del sujeto",
     grpShaftR:"Diáfisis D",grpHeadR:"Cabeza D",grpNeckR:"Cuello D",grpPhysR:"Fisis D",
     grpShaftL:"Diáfisis I",grpHeadL:"Cabeza I",grpNeckL:"Cuello I",grpPhysL:"Fisis I",
@@ -1201,7 +1201,7 @@ export default function App({variant}={}){
       ctx.lineWidth = 0.5;
       ctx.stroke();
 
-      // section label (e.g. "ÍNDICE DE REIMERS")
+      // section label (e.g. "PM DE REIMERS")
       ctx.font = `500 9px ${FONT}`;
       ctx.fillStyle = "rgba(255,255,255,0.28)";
       ctx.textAlign = "left";
@@ -1291,7 +1291,7 @@ export default function App({variant}={}){
       rR?.error ? "" : "%",
       rR?.error ? (rR.error==="inv_femur"?t.errInvFemur:t.errInvPerkins) : (rR ? clsOf(rR.index).l : "–"),
       rR?.error ? "#f87171" : (rR ? clsOf(rR.index).c : "#555"),
-      t.reimersTitle
+      t.reimersShort
     );
     drawCard(
       CMARGIN * 2 + cardW, row1Y, cardW, CARD_H,
@@ -1300,7 +1300,7 @@ export default function App({variant}={}){
       rL?.error ? "" : "%",
       rL?.error ? (rL.error==="inv_femur"?t.errInvFemur:t.errInvPerkins) : (rL ? clsOf(rL.index).l : "–"),
       rL?.error ? "#f87171" : (rL ? clsOf(rL.index).c : "#555"),
-      t.reimersTitle
+      t.reimersShort
     );
 
     // ── Row 2: Acetabular Index ───────────────────────────────────────────────
@@ -1341,7 +1341,7 @@ export default function App({variant}={}){
         ec.toBlob(blob=>{
           if(!blob){setExportImg(dataUrl);return;}
           const url=URL.createObjectURL(blob);
-          const a=document.createElement("a");a.href=url;a.download="reimers_index.png";
+          const a=document.createElement("a");a.href=url;a.download="reimers_PM.png";
           document.body.appendChild(a);a.click();
           setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
         },"image/png");
@@ -1530,14 +1530,15 @@ export default function App({variant}={}){
           <div style={{...TY.headline,color:GL.textPri}}>
             {hope?t.uiHopeTitle:t.uiTitle}
           </div>
+          {/* Subtitle only in HOPE; the main app title already says "Migration Percentage" */}
+          {hope && (
           <div style={{...TY.caption1,color:GL.textSec}}>
-            {hope ? (
-              // H-O-P-E initials in bold: Hip Outcomes after Proximal Femoral hemiEpiphysiodesis
+              {/* H-O-P-E initials in bold: Hip Outcomes after Proximal Femoral hemiEpiphysiodesis */}
               <span>
                 <b style={{fontWeight:700,color:GL.textPri}}>H</b>ip <b style={{fontWeight:700,color:GL.textPri}}>O</b>utcomes after <b style={{fontWeight:700,color:GL.textPri}}>P</b>roximal Femoral hemi<b style={{fontWeight:700,color:GL.textPri}}>E</b>piphysiodesis
               </span>
-            ) : t.uiSubtitle}
           </div>
+          )}
         </div>
         {hope && step>0 && idText && (
           <div style={{...glassStyle({padding:"4px 10px",borderRadius:999,background:GL.glassMid}),
