@@ -6,7 +6,7 @@ import HOPE_ICON from "./assets/hope-icon.png";
 const TRANSLATIONS = {
   pt: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PERCENTUAL DE MIGRAÇÃO DO FÊMUR PROXIMAL",
-    uiTitle:"Índice de Reimers",uiSubtitle:"Percentual de Migração do Fêmur Proximal",uiHopeTitle:"Estudo HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Recortar e alinhar",btnNext:"Próximo",errLabel:"Erro",
+    uiTitle:"Índice de Reimers",uiSubtitle:"Percentual de Migração do Fêmur Proximal",uiHopeTitle:"Estudo HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Recortar e alinhar",btnNext:"Próximo",errLabel:"Erro",
     loadTitle:"Carregar Radiografia",loadDesc:"Selecione uma radiografia de bacia AP para medir o Percentual de Migração de Reimers.",
     touchDrop:"Toque ou arraste",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins E",grpFemR:"Fêmur D",grpFemL:"Fêmur E",
@@ -29,7 +29,7 @@ const TRANSLATIONS = {
     cropAngle:"Ângulo",cropReset:"Restaurar",cropSkip:"Pular",cropApply:"Aplicar",cropCancel:"Cancelar",
     cropRotL:"Girar 90° à esquerda",cropRotR:"Girar 90° à direita",
     // HOPE study edition
-    hopeTitle:"ESTUDO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
+    hopeTitle:"ESTUDO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL HEMIEPIPHYSIODESIS",
     hopeLoadDesc:"Carregue a radiografia de bacia AP (com o identificador do sujeito, se quiser). Primeiro mede-se o índice de Reimers e o índice acetabular; depois, na mesma imagem, os ângulos cervicodiafisário (NSA) e cabeça-diáfise (HSA).",
     subjectLabel:"Identificador do sujeito",subjectPh:"ex.: HOPE-001",subjectNeeded:"Informe o identificador do sujeito para começar",subjectShort:"Sujeito",useIdLabel:"Usar identificador do sujeito",
     grpShaftR:"Diáfise D",grpHeadR:"Cabeça D",grpNeckR:"Colo D",grpPhysR:"Fise D",
@@ -51,7 +51,7 @@ const TRANSLATIONS = {
   },
   en: {
     appTitle:"REIMERS INDEX",appSubtitle:"PROXIMAL FEMORAL MIGRATION PERCENTAGE",
-    uiTitle:"Reimers Index",uiSubtitle:"Proximal Femoral Migration Percentage",uiHopeTitle:"HOPE Study",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Crop & straighten",btnNext:"Next",errLabel:"Error",
+    uiTitle:"Reimers Index",uiSubtitle:"Proximal Femoral Migration Percentage",uiHopeTitle:"HOPE Study",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Crop & straighten",btnNext:"Next",errLabel:"Error",
     loadTitle:"Load Radiograph",loadDesc:"Select an AP pelvis radiograph to measure the Reimers Migration Percentage.",
     touchDrop:"Tap or drag",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins R",grpPerkL:"Perkins L",grpFemR:"Femur R",grpFemL:"Femur L",
@@ -74,7 +74,7 @@ const TRANSLATIONS = {
     cropAngle:"Angle",cropReset:"Reset",cropSkip:"Skip",cropApply:"Apply",cropCancel:"Cancel",
     cropRotL:"Rotate 90° left",cropRotR:"Rotate 90° right",
     // HOPE study edition
-    hopeTitle:"HOPE STUDY",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
+    hopeTitle:"HOPE STUDY",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL HEMIEPIPHYSIODESIS",
     hopeLoadDesc:"Load an AP pelvis radiograph (with the subject identifier, if you wish). First the Reimers index and acetabular index are measured; then, on the same image, the neck-shaft angle (NSA) and head-shaft angle (HSA).",
     subjectLabel:"Subject identifier",subjectPh:"e.g. HOPE-001",subjectNeeded:"Enter the subject identifier to start",subjectShort:"Subject",useIdLabel:"Use subject identifier",
     grpShaftR:"Shaft R",grpHeadR:"Head R",grpNeckR:"Neck R",grpPhysR:"Physis R",
@@ -96,7 +96,7 @@ const TRANSLATIONS = {
   },
   es: {
     appTitle:"ÍNDICE DE REIMERS",appSubtitle:"PORCENTAJE DE MIGRACIÓN FEMORAL PROXIMAL",
-    uiTitle:"Índice de Reimers",uiSubtitle:"Porcentaje de Migración Femoral Proximal",uiHopeTitle:"Estudio HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral Epiphysiodesis",uiCropTitle:"Recortar y alinear",btnNext:"Siguiente",errLabel:"Error",
+    uiTitle:"Índice de Reimers",uiSubtitle:"Porcentaje de Migración Femoral Proximal",uiHopeTitle:"Estudio HOPE",uiHopeSubtitle:"Hip Outcomes after Proximal Femoral hemiEpiphysiodesis",uiCropTitle:"Recortar y alinear",btnNext:"Siguiente",errLabel:"Error",
     loadTitle:"Cargar Radiografía",loadDesc:"Seleccione una radiografía de pelvis AP para medir el Porcentaje de Migración de Reimers.",
     touchDrop:"Toque o arrastre",fileTypes:"JPG · PNG · HEIC",
     grpHilg:"Hilgenreiner",grpPerkR:"Perkins D",grpPerkL:"Perkins I",grpFemR:"Fémur D",grpFemL:"Fémur I",
@@ -119,7 +119,7 @@ const TRANSLATIONS = {
     cropAngle:"Ángulo",cropReset:"Restaurar",cropSkip:"Omitir",cropApply:"Aplicar",cropCancel:"Cancelar",
     cropRotL:"Girar 90° a la izquierda",cropRotR:"Girar 90° a la derecha",
     // HOPE study edition
-    hopeTitle:"ESTUDIO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL EPIPHYSIODESIS",
+    hopeTitle:"ESTUDIO HOPE",hopeSubtitle:"HIP OUTCOMES AFTER PROXIMAL FEMORAL HEMIEPIPHYSIODESIS",
     hopeLoadDesc:"Cargue la radiografía de pelvis AP (con el identificador del sujeto, si lo desea). Primero se mide el índice de Reimers y el índice acetabular; después, en la misma imagen, el ángulo cervicodiafisario (NSA) y el ángulo cabeza-diáfisis (HSA).",
     subjectLabel:"Identificador del sujeto",subjectPh:"ej.: HOPE-001",subjectNeeded:"Ingrese el identificador del sujeto para comenzar",subjectShort:"Sujeto",useIdLabel:"Usar identificador del sujeto",
     grpShaftR:"Diáfisis D",grpHeadR:"Cabeza D",grpNeckR:"Cuello D",grpPhysR:"Fisis D",
@@ -1531,7 +1531,12 @@ export default function App({variant}={}){
             {hope?t.uiHopeTitle:t.uiTitle}
           </div>
           <div style={{...TY.caption1,color:GL.textSec}}>
-            {hope?t.uiHopeSubtitle:t.uiSubtitle}
+            {hope ? (
+              // H-O-P-E initials in bold: Hip Outcomes after Proximal Femoral hemiEpiphysiodesis
+              <span>
+                <b style={{fontWeight:700,color:GL.textPri}}>H</b>ip <b style={{fontWeight:700,color:GL.textPri}}>O</b>utcomes after <b style={{fontWeight:700,color:GL.textPri}}>P</b>roximal Femoral hemi<b style={{fontWeight:700,color:GL.textPri}}>E</b>piphysiodesis
+              </span>
+            ) : t.uiSubtitle}
           </div>
         </div>
         {hope && step>0 && idText && (
